@@ -1,0 +1,8 @@
+Inspiration:
+
+http://gregfranko.com/jquery.tocify.js/
+http://pldoc.sourceforge.net/maven-site/
+http://bonsaiden.github.io/JavaScript-Garden/
+http://disco.readthedocs.org/en/latest/index.html
+http://canjs.com/guides/index.html
+http://docs.angularjs.org/api
