@@ -8,7 +8,11 @@ Procdoc.ProcdocController = Ember.ArrayController.extend({
       // Create the new Todo model
       var proc = this.store.createRecord('proc', {
         procName: squery,
-        doesCommit: false
+        doesCommit: false,
+        isHidden: false,
+        project: 'DB Ping',
+        author: 'Morten Egan',
+        revision: '1.04.3'
       });
 
       // Clear the "New Todo" text field

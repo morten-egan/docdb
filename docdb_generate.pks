@@ -1,21 +1,23 @@
-create or replace package docdb_generate
+create or replace package docdb
 
 as
+	
+	/**
+	* A tool to generate a web based documentation of database plsql code, using new web functionality to build
+	* a more responsive and intuitive interface, than existing solutions
+	* @project	Generate PL/SQL documentation from the database
+	* @version 1.0.34
+	* @author Morten Egan
+	*/
 
-	out_default 					varchar2(50) := 'DIRECTORY';
-	out_default_val					varchar2(250) := 'DOCDB_OUT';
-
-	procedure doc_schema (
-		i_schema_name			varchar2
+	/** 
+	* The top calling procedure to document an entire schema
+	* @author My Other knome
+	* @param	schema_name	The name of the schema to document. Defaults to current user
+	*/
+	procedure document_schema (
+		schema_name			in			varchar2 default USER
 	);
 
-	procedure doc_package (
-		i_package_name			varchar2
-	);
-
-	procedure doc_proc_func (
-		i_proc_func_name		varchar2
-	);
-
-end docdb_generate;
+end docdb;
 /

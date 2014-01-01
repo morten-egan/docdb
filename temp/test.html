@@ -3,16 +3,21 @@
 
 <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
 
-<!-- style>
-body {
-  min-height: 2000px;
-  padding-left: 0px;
-  margin: 0;
-}
-</style -->
-
 </head>
 <body>
+
+<script type="text/x-handlebars" data-template-name="procdoc/index">
+	{{#each}}
+		<div {{bind-attr class="isHidden:hidden"}}>
+			<div class="page-header">
+				<h2>{{procName}} <small>version {{revision}}</small></h2>
+			</div>
+			<div>
+				<h5>Project: <strong>{{project}}</strong>, Written by: <strong>{{author}}</strong></h5>
+			</div>
+		</div>
+	{{/each}}
+</script>
 
 <script type="text/x-handlebars" data-template-name="procdoc">
 
@@ -30,13 +35,17 @@ body {
 						</div>
 					</div>
     			</div>
-    			<div style="background: #343131; color: white; min-height: 2000px; font-size: 11px; padding-left: 15px;">
+    			<div class="col-md-12" style="background: #343131; color: white; min-height: 2000px; font-size: 12px;">
     				<div>
 						&nbsp;
 					</div>
-					<div style="padding-left: 15px; background-color: white; width: 100%;"><p><a href="#" style="color: black;">PING_UI</a></p></div>
+					<div style="background-color: white;">
+						<p style="padding-left: 15px;"><a href="#" style="color: black;">PING_UI</a></p>
+					</div>
 					{{#each}}
-						<div style="padding-left: 15px;"><p><a href="#" style="color: #999;">{{procName}}</a></p></div>
+						<div {{bind-attr class="isHidden:hidden"}}>
+							<p style="padding-left: 15px;"><a href="#" style="color: #999;">{{procName}}</a></p>
+						</div>
 					{{/each}}
     			</div>
     		</div>
@@ -45,115 +54,18 @@ body {
   			<div class="row">
 	 			<div class="col-md-6">
 	 				<p style="padding: 10px; font-size: 90%;">
-						Project: Generate PL/SQL documentation from the database
+						Documentation date: December 12, 2013.
 					</p>
 				</div>
 				<div class="col-md-6 text-right">
 					<p style="padding: 10px; font-size: 90%;">
-						Revision: <span class="badge">1.14</span>
-					</p>
-				</div>
-			</div>
-  			<div class="row">
-	 			<div class="col-md-6">
-	 				<p style="padding-left: 10px; font-size: 90%;">
-						Author: Morten Egan, Anton Egan Magnussen, Fie Egan Magnussen
+						<span class="badge">DOCDB</span>
 					</p>
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-md-12">
-					<div class="page-header">
-  						<h1>Package <small>PING_COMMUNICATIONS</small></h1>
-  						<h4><span class="label label-default">Commit</span> <span class="label label-default">Insert</span> <span class="label label-default">Update</span> <span class="label label-danger">Dynamic SQL</span> <span class="label label-default">Definers rights</span> <span class="label label-danger">NULL Exception</span> <span class="label label-danger">No Instrumentation</span></h4>
-					</div>
-					<div>
-						<div class="panel panel-default">
-						  <div class="panel-heading">
-						    <h3 class="panel-title">Procedure summary:</h3>
-						  </div>
-						  <div class="panel-body">
-						  	{{#each}}
-							  	<div>
-							    	<code><a href="#">{{procName}}</a>(id number, name varchar2)</code>
-							    	<p style="padding-left: 20px;">This procedure sends the current buffered mail text to [name].</p>
-							    </div>
-						    {{/each}}
-						  </div>
-						</div>
-					</div>
-					<div>
-						<div class="panel panel-default">
-						  <div class="panel-heading">
-						    <h3 class="panel-title">Function summary:</h3>
-						  </div>
-						  <div class="panel-body">
-						  	<div>
-						    	<code><a href="#">get_customer_mail</a>(name varchar2, o_name varchar2, sec_name varchar2 default "NA") <br> return varchar2</code>
-						    	<p style="padding-left: 20px;">This function returns the requested customer email. Returns null if not found.</p>
-						    </div>
-						  </div>
-						</div>
-					</div>
-					<div class="page-header">
-  						<h4><small>PING_COMMUNICATIONS</small>.get_customer_email</h4>
-  						<h6><span class="label label-default">Commit</span> <span class="label label-default">Insert</span></h6>
-					</div>
-					<div>
-						<h4>Description:</h4>
-						<p>This function returns the requested customer email. Returns null if not found.</p>
-					</div>
-					<div>
-						<h4>Usage:</h4>
-<pre>declare
-
-	f_out	varchar2(50);
-
-begin
-
-	f_out := ping_communications.get_customer_email (
-		name => 'varchar2'
-		, o_name => 'varchar2'
-		, sec_name => 'NA'
-	);
-
-end;
-/
-</pre>
-					</div>
-					<div>
-						<h4>Parameters:</h4>
-						<table class="table table-bordered" style="font-size: 12px;">
-							<thead>
-								<tr>
-									<th>Parameter</th>
-									<th>Type</th>
-									<th>Default</th>
-									<th>Details</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>Name</td>
-									<td><span class="label label-primary">varchar2</span></td>
-									<td>-</td>
-									<td>This is the name of the customer</td>
-								</tr>
-								<tr>
-									<td>o_name</td>
-									<td><span class="label label-primary">varchar2</span></td>
-									<td>-</td>
-									<td>This is the optional name</td>
-								</tr>
-								<tr>
-									<td>sec_name</td>
-									<td><span class="label label-primary">varchar2</span></td>
-									<td>'NA'</td>
-									<td>This is the security entry for email lookup. Defaults to no clearance.</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
+					{{outlet}}
 				</div>
 			</div>
   		</div>
