@@ -1,0 +1,82 @@
+<html>
+<head>
+
+<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+<body>
+
+	<script type="text/x-handlebars" data-template-name="docapp">
+
+		<div class="row">
+	    	<div class="col-md-3">
+	    		<div class="row">
+	    			<div class="col-md-12" style="background: #2980b9; color: white;">
+	    				<div class="text-center"><h4>{{docname}} <small>docdb</small></h4></div>
+	    				<div class="text-center">
+	    					<div class="col-md-12">
+								<input type="email" class="form-control" id="searchinput" value=searchQuery placeholder="Search ping documentation" action="searchProc">
+							</div>
+							<div>
+								&nbsp;
+							</div>
+						</div>
+	    			</div>
+	    			<div class="col-md-12" style="background: #343131; color: white; min-height: 2000px; font-size: 12px;">
+	    				<div>
+							&nbsp;
+						</div>
+						{{#each package in packages_ids}}
+							<div>
+									<p style="padding-left: 15px;"><a href="#" style="color: #999;">{{package.packageName}}</a></p>
+							</div>
+						{{/each}}
+	    			</div>
+	    		</div>
+	    	</div>
+	  		<div class="col-md-8">
+	  			<div class="row">
+		 			<div class="col-md-6">
+		 				<p style="padding: 10px; font-size: 90%;">
+							Documentation date: {{docgenerated}}.
+						</p>
+					</div>
+					<div class="col-md-6 text-right">
+						<p style="padding: 10px; font-size: 90%;">
+							<span class="badge">{{docname}}</span>
+						</p>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12">
+						{{#each package in packages_ids}}
+							<div>
+								<div class="page-header">
+									<h2>{{package.packageName}} <small>version {{package.version}}</small></h2>
+								</div>
+								<div>
+									<h5>Project: <strong>{{package.project}}</strong>, Written by: <strong>{{package.author}}</strong></h5>
+								</div>
+							</div>
+						{{/each}}
+					</div>
+				</div>
+	  		</div>
+	    </div>
+
+	</script>
+
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+	<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+
+	<script src="http://builds.handlebarsjs.com.s3.amazonaws.com/handlebars-1.0.0.js"></script>
+	<script src="http://builds.emberjs.com/tags/v1.0.0/ember.js"></script>
+	<script src="http://builds.emberjs.com/tags/v1.0.0-beta.3/ember-data.js"></script>
+
+	<script src="application.js"></script>
+	<script src="router.js"></script>
+	<script src="docdb_model.js"></script>
+	<script src="docdb_fixtures.js"></script>
+	
+</body>
+</html>

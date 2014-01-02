@@ -603,7 +603,7 @@ as
 		par_list_ids		varchar2(4000);
 
 		procedure write_piece (
-			piece_in		varchar2
+			piece_in		clob
 		)
 
 		as
@@ -627,6 +627,9 @@ as
 				utl_file.new_line(docdb_out_file);
 			elsif out_default = 'SPOOL' then
 				dbms_output.put_line(piece_in);
+			elsif out_default = 'TABLE' then
+				execute immediate 'insert into ' || out_default_val || ' values (:b1)'
+				using piece_in;
 			end if;
 
 		end write_piece;
@@ -639,9 +642,9 @@ as
 		end if;
 
 		-- Beginning of final pieces:
-		package_piece := 'docApp.Package.FIXTURES = [';
-		program_piece := 'docApp.Program.FIXTURES = [';
-		parameter_piece := 'docApp.Parameter.FIXTURES = [';
+		package_piece := 'Docapp.Package.FIXTURES = [';
+		program_piece := 'Docapp.Program.FIXTURES = [';
+		parameter_piece := 'Docapp.Parameter.FIXTURES = [';
 		
 		-- Packages
 		pkg_list_ids := '[';
@@ -681,8 +684,8 @@ as
 					programAuthor: ''' || documentation_run.run_pkg_list(i).programs(y).author || ''',
 					programReturn: ''' || documentation_run.run_pkg_list(i).programs(y).returnDesc || ''',
 					programReturnType: ''' || documentation_run.run_pkg_list(i).programs(y).returnType || ''',
-					programParams: '|| par_list_ids ||',
-					programPackage: ' || i || '
+					programParams_ids: '|| par_list_ids ||',
+					programPackage_id: ' || i || '
 				},';
 				program_piece := program_piece || program_piece_temp;
 
@@ -696,7 +699,10 @@ as
 				id: '|| i || ',
 				packageName: ''' || documentation_run.run_pkg_list(i).packageName || ''',
 				description: ''' || documentation_run.run_pkg_list(i).description || ''',
-				programs: ' || prg_list_ids || ',
+				project: ''' || documentation_run.run_pkg_list(i).project || ''',
+				author: ''' || documentation_run.run_pkg_list(i).author || ''',
+				version: ''' || documentation_run.run_pkg_list(i).version || ''',
+				programs_ids: ' || prg_list_ids || ',
 				doc: ' || documentation_run.run_id || '
 			},';
 			package_piece := package_piece || package_piece_temp;
@@ -707,12 +713,12 @@ as
 		pkg_list_ids := substr(pkg_list_ids, 1, length(pkg_list_ids) -1) || ']';
 
 		-- Main piece
-		c_piece := 'docApp.CompleteDoc.FIXTURES = [{
+		c_piece := 'Docapp.Completedoc.FIXTURES = [{
 			id: ' || documentation_run.run_id || ',
 			docname: ''' || documentation_run.run_name || ''',
 			docgenerated: ''' || to_char(documentation_run.run_date, 'DD Mon YYYY') || ''',
-			packages: '|| pkg_list_ids ||',
-			standalone: []
+			packages_ids: '|| pkg_list_ids ||',
+			standalone_ids: []
 		}];';
 
 		-- Finish final pieces
@@ -752,13 +758,28 @@ as
 		pkg_def			document_rec;
 		run_details		run_rec;
 
+		procedure reset_package_vars
+		
+		as
+		
+		begin
+
+			pkg_def.packageName := null;
+			pkg_def.description := null;
+			pkg_def.project := null;
+			pkg_def.author := null;
+			pkg_def.version := null;
+			pkg_def.programs.delete;
+
+		end reset_package_vars;
+
 	begin
 
 		run_details.run_date := sysdate;
 		run_details.run_type := 'schema';
 		run_details.run_name := schema_name;
 		run_details.run_description := 'Documentation of schema: ' || schema_name;
-		run_details.run_id := to_char(sysdate, 'SSHH24MI');
+		run_details.run_id := 1;
 
 		-- Loop over all packages and get ddl for the header, parsing them for comments
 		for pkg_header in get_packages loop 
@@ -773,6 +794,9 @@ as
 
 			-- Add package to full list
 			run_details.run_pkg_list(run_details.run_pkg_list.count + 1) := pkg_def;
+
+			-- Reset package values
+			reset_package_vars;
 		end loop;
 
 		write_ember_fixtures(run_details);

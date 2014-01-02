@@ -1,35 +1,35 @@
-docApp.CompleteDoc = DS.Model.extend({
+Docapp.Completedoc = DS.Model.extend({
 	docname: DS.attr('string', {defaultValue: "DOCDB"})
 	, docgenerated: DS.attr('string')
-	, packages: DS.hasMany('docApp.Package')
-	, standalone: DS.hasMany('docApp.Program')
+	, packages_ids: DS.hasMany('package', { async: true })
+	, standalone_ids: DS.hasMany('program', { async: true })
 });
 
-docApp.Package = DS.Model.extend({
+Docapp.Package = DS.Model.extend({
 	packageName: DS.attr('string')
 	, description: DS.attr('string')
 	, project: DS.attr('string', {defaultValue: null})
 	, author: DS.attr('string')
 	, version: DS.attr('string')
-	, programs: DS.hasMany('docApp.Program')
-	, doc: DS.belongsTo('docApp.CompleteDoc')
+	, programs_ids: DS.hasMany('program', { async: true })
+	, doc_id: DS.belongsTo('completedoc')
 });
 
-docApp.Program = DS.Model.extend({
+Docapp.Program = DS.Model.extend({
 	programName: DS.attr('string')
 	, programType: DS.attr('string')
 	, programDescription: DS.attr('string')
 	, programAuthor: DS.attr('string')
 	, programReturn: DS.attr('string', {defaultValue: null})
 	, programReturnType: DS.attr('string', {defaultValue: null})
-	, programParams: DS.hasMany('docApp.Parameter')
-	, programPackage: DS.belongsTo('docApp.Package')
+	, programParams_ids: DS.hasMany('parameter', { async: true })
+	, programPackage_id: DS.belongsTo('package')
 });
 
-docApp.Parameter = DS.Model.extend({
+Docapp.Parameter = DS.Model.extend({
 	paramName: DS.attr('string')
 	, paramType: DS.attr('string')
 	, paramDescription: DS.attr('string')
 	, paramDefaultValue: DS.attr('string')
-	, paramProgram: DS.belongsTo('docApp.Program')
+	, paramProgram_id: DS.belongsTo('program')
 });
