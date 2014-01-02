@@ -1,3 +1,4 @@
 # Ignore list
 *.py[cod]
 .qs_env
+docdb_fixtures.js
