@@ -2,6 +2,12 @@ create or replace package body docdb
 
 as
 
+	-- TODO LIST
+	-- Global program counter for fixtures write to avoid duplicates
+	-- Global parameter counter for fixtures write to avoid duplicates
+	-- Fix substr of 0 parameters, so parm_ids does not become "]" only
+	-- Find global variables for packages and add to model and record
+
 	out_default 					varchar2(50) := 'SPOOL';
 	out_default_val					varchar2(250) := 'DOCDB_OUT';
 
@@ -489,7 +495,11 @@ as
 				fixed_line := replace(working_line, chr(9), ' ');
 				param_loc1 := instr(upper(fixed_line), program_catch) + length(program_catch) + 1;
 				param_loc2 := instr(fixed_line, ' ', param_loc1);
-				c_object_name := substr(fixed_line, param_loc1, param_loc2 - param_loc1);
+				if param_loc2 > 0 then
+					c_object_name := substr(fixed_line, param_loc1, param_loc2 - param_loc1);
+				else
+					c_object_name := substr(fixed_line, param_loc1);
+				end if;
 				-- check if we already have a documentation for this procedure/function
 				if parse_block_ready then
 					-- We need to finish documentation for this procedure.

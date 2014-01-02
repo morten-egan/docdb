@@ -6,6 +6,25 @@
 </head>
 <body>
 
+	<script type="text/x-handlebars" data-template-name="docapp/index">
+		{{#each package in packages_ids}}
+			<div>
+				<div class="page-header">
+					<h2>{{package.packageName}} <small>version {{package.version}}</small></h2>
+				</div>
+				<div>
+					<h5>Project: <strong>{{package.project}}</strong>, Written by: <strong>{{package.author}}</strong></h5>
+				</div>
+			</div>
+		{{/each}}
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="docapp/pkgdetail">
+		<div>
+			package selected: {{packageName}}
+		</div>
+	</script>
+
 	<script type="text/x-handlebars" data-template-name="docapp">
 
 		<div class="row">
@@ -15,7 +34,7 @@
 	    				<div class="text-center"><h4>{{docname}} <small>docdb</small></h4></div>
 	    				<div class="text-center">
 	    					<div class="col-md-12">
-								<input type="email" class="form-control" id="searchinput" value=searchQuery placeholder="Search ping documentation" action="searchProc">
+								{{input type="text" class="form-control" id="searchinput" value=searchQuery placeholder="Search ping documentation" action="searchCompletedoc"}}
 							</div>
 							<div>
 								&nbsp;
@@ -26,9 +45,12 @@
 	    				<div>
 							&nbsp;
 						</div>
+						<div>
+							<p style="padding-left: 15px;">{{#link-to "docapp"}}Home{{/link-to}}</p>
+						</div>
 						{{#each package in packages_ids}}
 							<div>
-									<p style="padding-left: 15px;"><a href="#" style="color: #999;">{{package.packageName}}</a></p>
+									<p style="padding-left: 15px;">{{#link-to "docapp.pkgdetail" package activeClass="selected"}}{{package.packageName}}{{/link-to}}</p>
 							</div>
 						{{/each}}
 	    			</div>
@@ -49,16 +71,7 @@
 				</div>
 				<div class="row">
 					<div class="col-md-12">
-						{{#each package in packages_ids}}
-							<div>
-								<div class="page-header">
-									<h2>{{package.packageName}} <small>version {{package.version}}</small></h2>
-								</div>
-								<div>
-									<h5>Project: <strong>{{package.project}}</strong>, Written by: <strong>{{package.author}}</strong></h5>
-								</div>
-							</div>
-						{{/each}}
+						{{outlet}}
 					</div>
 				</div>
 	  		</div>
@@ -77,6 +90,7 @@
 	<script src="router.js"></script>
 	<script src="docdb_model.js"></script>
 	<script src="docdb_fixtures.js"></script>
+	<script src="controller.js"></script>
 	
 </body>
 </html>
