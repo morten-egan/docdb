@@ -1,4 +1,5 @@
 create or replace package docdb
+authid current_user
 
 as
 	
