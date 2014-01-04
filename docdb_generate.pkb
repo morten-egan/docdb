@@ -8,11 +8,13 @@ as
 	-- Fix substr of 0 parameters, so parm_ids does not become "]" only
 	-- Find global variables for packages and add to model and record
 
-	out_default 					varchar2(50) := 'SPOOL';
+	out_default 					varchar2(50) := 'DIRECTORY';
 	out_default_val					varchar2(250) := 'DOCDB_OUT';
 
 	type meta_lines is table of varchar2(4000) index by pls_integer;
 	meta_current			meta_lines;
+	program_counter			number := 1;
+	parameter_counter		number := 1;
 
 
 	/* Documentation records */
@@ -259,7 +261,10 @@ as
 				argument_name
 				, position
 				, sequence
-				, data_type
+				, (case data_type
+					when 'TABLE' then type_owner || '.' || type_name
+					else data_type
+				  end) data_type
 				, default_value
 				, default_length
 				, radix
@@ -301,9 +306,9 @@ as
 		if c_param.count = 0 then
 			-- only load dictionary parameters
 			for parms in get_parms loop
-				if parms.position = 0 then
+				if parms.position = 0 and pkg_def.programs(prog_count).programType = 'FUNCTION' then
 					pkg_def.programs(prog_count).returnType := parms.data_type;
-				else
+				elsif parms.argument_name is not null then
 					pkg_def.programs(prog_count).params(parms.position).paramType := parms.data_type;
 					pkg_def.programs(prog_count).params(parms.position).paramName := parms.argument_name;
 					if parms.default_value is not null then
@@ -314,9 +319,9 @@ as
 		else
 			-- We need to check c_param data as well as dictionary data
 			for parms in get_parms loop
-				if parms.position = 0 then
+				if parms.position = 0 and pkg_def.programs(prog_count).programType = 'FUNCTION' then
 					pkg_def.programs(prog_count).returnType := parms.data_type;
-				else
+				elsif parms.argument_name is not null then
 					for i in 1..c_param.count loop
 						if upper(c_param(i).paramName) = upper(parms.argument_name) then
 							pkg_def.programs(prog_count).params(parms.position).description := c_param(i).description;
@@ -498,7 +503,7 @@ as
 				if param_loc2 > 0 then
 					c_object_name := substr(fixed_line, param_loc1, param_loc2 - param_loc1);
 				else
-					c_object_name := substr(fixed_line, param_loc1);
+					c_object_name := replace(substr(fixed_line, param_loc1), '(');
 				end if;
 				-- check if we already have a documentation for this procedure/function
 				if parse_block_ready then
@@ -604,13 +609,14 @@ as
 		program_piece_temp		clob;
 		parameter_piece			clob;
 		parameter_piece_temp	clob;
-
-		program_counter			number := 1;
-		parameter_counter		number := 1;
+		final_piece				clob;
 
 		pkg_list_ids		varchar2(4000);
 		prg_list_ids		varchar2(4000);
 		par_list_ids		varchar2(4000);
+
+		tab_count			number := 0;
+		docdb_tab_exist		boolean := false;
 
 		procedure write_piece (
 			piece_in		clob
@@ -638,8 +644,26 @@ as
 			elsif out_default = 'SPOOL' then
 				dbms_output.put_line(piece_in);
 			elsif out_default = 'TABLE' then
-				execute immediate 'insert into ' || out_default_val || ' values (:b1)'
-				using piece_in;
+				if docdb_tab_exist then
+					execute immediate 'insert into ' || out_default_val || ' values (:b1)'
+					using piece_in;
+				else
+					select count(*)
+					into tab_count
+					from user_tables
+					where table_name = upper(out_default_val);
+					if tab_count = 0 then
+						-- create it
+						execute immediate 'create table ' || out_default_val || '(docdb_content clob)';
+						execute immediate 'insert into ' || out_default_val || ' values (:b1)'
+						using piece_in;
+						docdb_tab_exist := true;
+					else
+						execute immediate 'insert into ' || out_default_val || ' values (:b1)'
+						using piece_in;
+						docdb_tab_exist := true;
+					end if;
+				end if;
 			end if;
 
 		end write_piece;
@@ -684,7 +708,11 @@ as
 					-- Increment counters
 					parameter_counter := parameter_counter + 1;
 				end loop;
-				par_list_ids := substr(par_list_ids, 1, length(par_list_ids) -1) || ']';
+				if documentation_run.run_pkg_list(i).programs(y).params.count >= 1 then
+					par_list_ids := substr(par_list_ids, 1, length(par_list_ids) -1) || ']';
+				else
+					par_list_ids := par_list_ids || ']';
+				end if;
 
 				program_piece_temp := '{
 					id: ' || to_char(y + program_counter) || ',
@@ -702,6 +730,7 @@ as
 				-- Reset lists and increment counters
 				par_list_ids := null;
 				program_counter := program_counter + 1;
+				parameter_counter := parameter_counter + documentation_run.run_pkg_list(i).programs(y).params.count;
 			end loop;
 			prg_list_ids := substr(prg_list_ids, 1, length(prg_list_ids) -1) || ']';
 
@@ -719,6 +748,7 @@ as
 
 			-- Reset lists
 			prg_list_ids := null;
+			program_counter := program_counter + documentation_run.run_pkg_list(i).programs.count;
 		end loop;
 		pkg_list_ids := substr(pkg_list_ids, 1, length(pkg_list_ids) -1) || ']';
 

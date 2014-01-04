@@ -6,7 +6,8 @@ Docapp.DocappController = Ember.ObjectController.extend({
       var query = this.get('searchQuery');
       if (!query.trim()) { return; };
 
-      alert('Filter based on: ' + query);
+      var x = this.store.find('package');
+      alert(x);
 
       // Clear the "New Todo" text field
       this.set('searchQuery', '');

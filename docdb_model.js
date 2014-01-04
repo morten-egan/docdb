@@ -23,6 +23,7 @@ Docapp.Program = DS.Model.extend({
 	, programReturn: DS.attr('string', {defaultValue: null})
 	, programReturnType: DS.attr('string', {defaultValue: null})
 	, programParams_ids: DS.hasMany('parameter', { async: true })
+	, programAttrib_ids: DS.hasMany('attrib', { async: true })
 	, programPackage_id: DS.belongsTo('package')
 });
 
@@ -32,4 +33,10 @@ Docapp.Parameter = DS.Model.extend({
 	, paramDescription: DS.attr('string')
 	, paramDefaultValue: DS.attr('string')
 	, paramProgram_id: DS.belongsTo('program')
+});
+
+Docapp.Attrib = DS.Model.extend({
+	attribName: DS.attr('string')
+	, attribSet: DS.attr('boolean')
+	, attribProgram_id: DS.belongsTo('program')
 });
