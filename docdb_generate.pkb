@@ -15,6 +15,7 @@ as
 	meta_current			meta_lines;
 	program_counter			number := 1;
 	parameter_counter		number := 1;
+	attribute_counter		number := 1;
 
 
 	/* Documentation records */
@@ -609,11 +610,16 @@ as
 		program_piece_temp		clob;
 		parameter_piece			clob;
 		parameter_piece_temp	clob;
+		attribute_piece			clob;
+		attribute_piece_temp	clob;
 		final_piece				clob;
+		program_attr_idx		varchar2(200);
+		program_attr_count		number := 0;
 
 		pkg_list_ids		varchar2(4000);
 		prg_list_ids		varchar2(4000);
 		par_list_ids		varchar2(4000);
+		atr_list_ids		varchar2(4000);
 
 		tab_count			number := 0;
 		docdb_tab_exist		boolean := false;
@@ -679,6 +685,7 @@ as
 		package_piece := 'Docapp.Package.FIXTURES = [';
 		program_piece := 'Docapp.Program.FIXTURES = [';
 		parameter_piece := 'Docapp.Parameter.FIXTURES = [';
+		attribute_piece := 'Docapp.Attrib.FIXTURES = [';
 		
 		-- Packages
 		pkg_list_ids := '[';
@@ -701,7 +708,7 @@ as
 						paramType: ''' || documentation_run.run_pkg_list(i).programs(y).params(u).paramType || ''',
 						paramDescription: ''' || documentation_run.run_pkg_list(i).programs(y).params(u).description || ''',
 						paramDefaultValue: ''' || documentation_run.run_pkg_list(i).programs(y).params(u).defaultValue || ''',
-						paramProgram: ' || to_char(y + program_counter) || '
+						paramProgram_id: ' || to_char(y + program_counter) || '
 					},';
 					parameter_piece := parameter_piece || parameter_piece_temp;
 
@@ -712,6 +719,29 @@ as
 					par_list_ids := substr(par_list_ids, 1, length(par_list_ids) -1) || ']';
 				else
 					par_list_ids := par_list_ids || ']';
+				end if;
+
+				-- Loop over all program attributes
+				atr_list_ids := '[';
+				program_attr_idx := documentation_run.run_pkg_list(i).programs(y).attrs.first;
+				while program_attr_idx is not null then
+					program_attr_count := program_attr_count + 1;
+					atr_list_ids := atr_list_ids || to_char(program_attr_count + attribute_counter) || ',';
+
+					attribute_piece_temp := '{
+						id: ' || to_char(program_attr_count + attribute_counter) || ',
+						attribName: ''' || program_attr_idx || ''',
+						attribSet: true,
+						attribProgram_id: '|| to_char(y + program_counter) || '
+					},';
+
+					program_attr_idx := documentation_run.run_pkg_list(i).programs(y).attrs.next(program_attr_idx);
+					attribute_counter := attribute_counter + 1;
+				end loop;
+				if program_attr_count >= 1 then
+					atr_list_ids := substr(atr_list_ids, 1, length(atr_list_ids) -1) || ']';
+				else
+					atr_list_ids := atr_list_ids || ']';
 				end if;
 
 				program_piece_temp := '{
@@ -731,6 +761,7 @@ as
 				par_list_ids := null;
 				program_counter := program_counter + 1;
 				parameter_counter := parameter_counter + documentation_run.run_pkg_list(i).programs(y).params.count;
+				attribute_counter := attribute_counter + program_attr_count;
 			end loop;
 			prg_list_ids := substr(prg_list_ids, 1, length(prg_list_ids) -1) || ']';
 
@@ -765,11 +796,15 @@ as
 		parameter_piece := substr(parameter_piece, 1, length(parameter_piece) -1) || '];';
 		package_piece := substr(package_piece, 1, length(package_piece) -1) || '];';
 		program_piece := substr(program_piece, 1, length(program_piece) -1) || '];';
+		attribute_piece := substr(attribute_piece, 1, length(attribute_piece) -1) || '];';
 		
-		write_piece(c_piece);
+		/* write_piece(c_piece);
 		write_piece(package_piece);
 		write_piece(program_piece);
-		write_piece(parameter_piece);
+		write_piece(parameter_piece); */
+
+		final_piece := c_piece || package_piece || program_piece || parameter_piece || attribute_piece;
+		write_piece(final_piece);
 
 		if out_default = 'DIRECTORY' then
 			utl_file.fclose(docdb_out_file);
