@@ -35,11 +35,24 @@ as
 	procedure extract_package_program_name (
 		parser 				in out nocopy 		docdb_parse.parse_type
 		, start_from_line	in					number
+		, only_package_doc	out 				boolean
 	);
 
 	procedure parse_program_dictionary (
 		parser 				in out nocopy		docdb_parse.parse_type
 	);
+
+	procedure reset_current_parse (
+        parser              in out nocopy       docdb_parse.parse_type
+    );
+
+    procedure display_current_parse (
+        parser              in out nocopy       docdb_parse.parse_type
+    );
+
+    procedure parse_current_as_package_doc (
+    	parser 				in out nocopy		docdb_parse.parse_type
+    );
 
 end docdb_tools;
 /
