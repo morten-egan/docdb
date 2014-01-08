@@ -26,6 +26,7 @@ as
 		, author						varchar2(4000)
 		, throws						varchar2(4000)
 		, return_description			clob
+		, return_type					varchar2(4000)
 		, parameters 					program_parameter_list
 		, attributes					attr_list
 	);
@@ -52,6 +53,8 @@ as
 		, documentation_pkg_block		boolean
 		, program_spec_met				boolean
 		, doc_written					boolean
+		, program_boundary_start		number
+		, program_boundary_end			number
 	);
 
 	type parse_counters is record (

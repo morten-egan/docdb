@@ -158,6 +158,7 @@ as
 				if not expect_comment_first then
 					-- Stand alone procedure or function, pase dictionary and exit
 					docdb_tools.parse_program_dictionary(parser);
+					docdb_tools.parse_current_as_program_doc(parser);
 					exit;
 				end if;
 
@@ -167,6 +168,7 @@ as
 					docdb_tools.parse_current_as_package_doc(parser);
 				else
 					docdb_tools.parse_program_dictionary(parser);
+					docdb_tools.parse_current_as_program_doc(parser);
 				end if;
 
 				-- When parsing of this section is done, set parameters to indicate completion
@@ -176,6 +178,7 @@ as
 				-- We are in a package, and there is no documentation for a program. We still parse dictionary
 				docdb_tools.extract_package_program_name(parser, i - 1);
 				docdb_tools.parse_program_dictionary(parser);
+				docdb_tools.parse_current_as_program_doc(parser);
 
 				docdb_tools.reset_current_parse(parser);
 			end if;

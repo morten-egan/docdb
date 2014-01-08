@@ -19,35 +19,6 @@ as
 
 	end prepare_line_for_parse;
 
-	procedure write_piece (
-		piece 				in					clob
-		, write_type		in					varchar2 default 'DIRECTORY'
-		, type_val			in					varchar2 default 'DOCDB_OUT'
-	)
-
-	as
-
-	begin
-
-		null;
-
-	end write_piece;
-
-	procedure add_string_to_list (
-		str 				in					clob
-		, list 				in out nocopy		clob
-		, enclose_elem		in 					varchar2		default '{}'
-		, seperate_by		in 					varchar2 		default ','
-	)
-
-	as
-
-	begin
-
-		null;
-
-	end add_string_to_list;
-
 	function get_metadata_clob (
 		obj_type 			in 					varchar2
 		, obj_name 			in 					varchar2
@@ -233,6 +204,212 @@ as
 
 	end parse_program_dictionary_ref;
 
+	procedure find_program_boundary (
+		parser 				in out nocopy 		docdb_parse.parse_type
+	)
+
+	as
+
+		cursor get_source is
+			select 
+				line
+				, text
+			from 
+				all_source
+			where
+				owner = parser.current_data.owner
+			and
+				name = upper(parser.current_data.package_name)
+			and 
+				type = 'PACKAGE BODY'
+			order by 
+				line asc;
+
+		in_start			boolean := false;
+		token_depth			number := 0;
+
+	begin
+
+		if parser.current_data.package_name is null then
+			parser.info.program_boundary_start := 1;
+			parser.info.program_boundary_end := -1;
+		else
+			for lines in get_source loop
+				if in_start then
+					-- Search for tokens needing an end, and if found up the token_depth
+					if instr(lines.text, '--') = 0 then
+						if instr(upper(lines.text), 'IF') > 0 then
+							token_depth := token_depth + 1;
+						end if;
+	
+						if instr(upper(lines.text), 'FOR ') > 0 and instr(upper(lines.text), ' LOOP') > 0 then
+							token_depth := token_depth + 1;
+						end if;
+	
+						if instr(upper(lines.text), 'WHILE ') > 0 and instr(upper(lines.text), ' LOOP') > 0 then
+							token_depth := token_depth + 1;
+						end if;
+	
+						-- Search for end token, and if found decrement the token_depth
+						if instr(upper(lines.text), 'END IF') > 0 then
+							token_depth := token_depth - 1;
+						end if;
+	
+						if instr(upper(lines.text), 'END LOOP') > 0 then
+							token_depth := token_depth - 1;
+						end if;
+	
+						if instr(upper(lines.text), 'END;') > 0 or (instr(upper(lines.text), 'END') > 0 and instr(upper(lines.text), upper(parser.current_data.progr.program_name)) > 0)then
+							token_depth := token_depth - 1;
+						end if;
+					end if;
+	
+					-- Break when token_depth reaches zero
+					if token_depth = 0 then
+						-- We are at the end of the line, mark it and break the loop
+						parser.info.program_boundary_end := lines.line;
+						exit;
+					end if;
+				else
+					if (instr(upper(lines.text), 'PROCEDURE ' || upper(parser.current_data.progr.program_name)) > 0) or (instr(upper(lines.text), 'FUNCTION ' || upper(parser.current_data.progr.program_name)) > 0) then
+						parser.info.program_boundary_start := lines.line;
+						token_depth := 1;
+						in_start := true;
+					end if;
+				end if;
+			end loop;
+		end if;
+
+	end find_program_boundary;
+
+	function get_program_source_ref (
+		parser 				in out nocopy 		docdb_parse.parse_type
+	)
+	return sys_refcursor
+
+	as
+
+		source_cursor		sys_refcursor;
+
+	begin
+
+		if parser.current_data.package_name is null and parser.current_data.progr.is_function then
+			open source_cursor for
+				select
+					text
+				from
+					all_source
+				where
+					owner = upper(parser.current_data.owner)
+				and
+					name = upper(parser.current_data.program_name)
+				and 
+					type = 'FUNCTION';
+		elsif parser.current_data.package_name is null and parser.current_data.progr.is_procedure then
+			open source_cursor for
+				select
+					text
+				from
+					all_source
+				where
+					owner = upper(parser.current_data.owner)
+				and
+					name = upper(parser.current_data.program_name)
+				and 
+					type = 'PROCEDURE';
+		elsif parser.current_data.package_name is not null then
+			open source_cursor for
+				select
+					text
+				from
+					all_source
+				where
+					owner = upper(parser.current_data.owner)
+				and
+					name = upper(parser.current_data.package_name)
+				and 
+					type = 'PACKAGE BODY'
+				and
+					line between parser.info.program_boundary_start and parser.info.program_boundary_end;
+		end if;
+
+		return source_cursor;
+
+	end get_program_source_ref;
+
+	procedure parse_program_attributes (
+		parser 				in out nocopy 		docdb_parse.parse_type
+	)
+
+	as
+
+		source_cursor		sys_refcursor;
+		source_line			all_source.text%type;
+
+		fixed_line			varchar2(4000);
+		in_comment			boolean := false;
+		in_exception		boolean := false;
+
+		-- Negative attributes
+		no_instrumentation	boolean := true;
+
+	begin
+
+		find_program_boundary(parser);
+
+		source_cursor := get_program_source_ref(parser);
+		loop
+			fetch source_cursor
+			into source_line;
+
+			exit when source_cursor%notfound;
+			-- Start the analyze
+			fixed_line := trim(source_line);
+			fixed_line := ltrim(fixed_line, chr(9));
+			fixed_line := upper(fixed_line);
+			if substr(fixed_line, 1, 2) = '/*' then
+				in_comment := true;
+			elsif in_comment then
+				if substr(fixed_line, -1, 2) = '*/' then
+					in_comment := false;
+				end if;
+			elsif substr(fixed_line, 1, 2) = '--' then
+				--ignore single line comments
+				null;
+			else
+				-- Check line for atributes
+				if instr(fixed_line, 'INSERT ') > 0 then
+					parser.current_data.progr.attributes('Insert') := true;
+				end if;
+				if instr(fixed_line, 'UPDATE ') > 0 then
+					parser.current_data.progr.attributes('Update') := true;
+				end if;
+				if instr(fixed_line, 'DELETE ') > 0 then
+					parser.current_data.progr.attributes('Delete') := true;
+				end if;
+				if instr(fixed_line, 'EXECUTE IMMEDIATE') > 0 then
+					parser.current_data.progr.attributes('Dynamic SQL') := true;
+				end if;
+				if instr(fixed_line, 'COMMIT;') > 0 then
+					parser.current_data.progr.attributes('Commit') := true;
+				end if;
+				if instr(fixed_line, 'ROLLBACK;') > 0 then
+					parser.current_data.progr.attributes('Rollback') := true;
+				end if;
+				if instr(fixed_line, 'DBMS_APPLICATION_INFO.SET;') > 0 then
+					no_instrumentation := false;
+				end if;
+			end if;
+		end loop;
+
+		if no_instrumentation then
+			parser.current_data.progr.attributes('No Instrumentation') := true;
+		else
+			parser.current_data.progr.attributes('Code instrumented') := true;
+		end if;
+
+	end parse_program_attributes;
+
 	procedure parse_program_dictionary (
 		parser 				in out nocopy		docdb_parse.parse_type
 	)
@@ -277,32 +454,39 @@ as
 			
 			exit when c_cursor%notfound;
 			-- Increment parameter counter
-			parser.counters.parameter_counter := parser.counters.parameter_counter + 1;
-			parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_position := c_position;
-			parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_type := c_data_type;
-			if c_in_out = 'IN/OUT' then
-				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_out := true;
-				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_in := true;
-			elsif c_in_out = 'IN' then
-				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_in := true;
-				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_out := false;
-			elsif c_in_out = 'OUT' then
-				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_out := true;
-				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_in := false;
-			end if;
-			-- Default value defined here.
-			if c_default_value is not null then
-				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_default_value := c_default_value;
-			end if;
-			-- In here we need to check if we already have a description of the parameter and if we do loop and grab description
-			if parser.current_data.params.count > 0 then
-				for docced_parms in 1..parser.current_data.params.count loop
-					if upper(c_argument_name) = upper(parser.current_data.params(docced_parms).parameter_name) then
-						parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_description := parser.current_data.params(docced_parms).parameter_description;
-					end if;
-				end loop;
+			if c_position = 0 and parser.current_data.progr.is_function then
+				parser.current_data.progr.return_type := c_data_type;
+			else
+				parser.counters.parameter_counter := parser.counters.parameter_counter + 1;
+				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_position := c_position;
+				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_type := c_data_type;
+				if c_in_out = 'IN/OUT' then
+					parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_out := true;
+					parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_in := true;
+				elsif c_in_out = 'IN' then
+					parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_in := true;
+					parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_out := false;
+				elsif c_in_out = 'OUT' then
+					parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_out := true;
+					parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_in := false;
+				end if;
+				-- Default value defined here.
+				if c_default_value is not null then
+					parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_default_value := c_default_value;
+				end if;
+				-- In here we need to check if we already have a description of the parameter and if we do loop and grab description
+				if parser.current_data.params.count > 0 then
+					for docced_parms in 1..parser.current_data.params.count loop
+						if upper(c_argument_name) = upper(parser.current_data.params(docced_parms).parameter_name) then
+							parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_description := parser.current_data.params(docced_parms).parameter_description;
+						end if;
+					end loop;
+				end if;
 			end if;
 		end loop;
+
+		-- Analyze body for attributes
+		parse_program_attributes(parser);
 
 	end parse_program_dictionary;
 
@@ -332,6 +516,7 @@ as
         parser.current_data.progr.description := null;
         parser.current_data.progr.author := null;
         parser.current_data.progr.return_description := null;
+        parser.current_data.progr.return_type := null;
         parser.current_data.progr.throws := null;
         parser.current_data.progr.parameters.delete;
         parser.current_data.progr.attributes.delete;
@@ -339,6 +524,8 @@ as
         parser.info.program_spec_met := false;
         parser.info.documentation_block_start := null;
 		parser.info.documentation_block_end := null;
+		parser.info.program_boundary_start := null;
+		parser.info.program_boundary_end := null;
  
     end reset_current_parse;
  
@@ -386,6 +573,24 @@ as
     	parser.packages(parser.counters.package_counter).version := parser.current_data.version;
 
     end parse_current_as_package_doc;
+
+    procedure parse_current_as_program_doc (
+    	parser 				in out nocopy		docdb_parse.parse_type
+    )
+
+    as
+
+    begin
+
+    	parser.counters.program_counter := parser.counters.program_counter + 1;
+    	if parser.current_data.package_name is null then
+    		-- Standalone program, put it into standalones
+    		parser.standalones(parser.counters.program_counter) := parser.current_data.progr;
+    	else
+    		parser.packages(parser.counters.package_counter).programs(parser.counters.program_counter) := parser.current_data.progr;
+    	end if;
+
+    end parse_current_as_program_doc;
 
 end docdb_tools;
 /
