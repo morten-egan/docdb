@@ -35,7 +35,6 @@ as
 	procedure extract_package_program_name (
 		parser 				in out nocopy 		docdb_parse.parse_type
 		, start_from_line	in					number
-		, only_package_doc	out 				boolean
 	);
 
 	procedure parse_program_dictionary (

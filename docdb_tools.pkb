@@ -103,7 +103,6 @@ as
 	procedure extract_package_program_name (
 		parser 				in out nocopy 		docdb_parse.parse_type
 		, start_from_line	in					number
-		, only_package_doc	out 				boolean
 	)
 
 	as
@@ -114,8 +113,9 @@ as
 	begin
 
 		for i in start_from_line..parser.current_data.lines.count loop
+			docdb_tools.prepare_line_for_parse(parser, i);
 			if substr(parser.current_data.lines(i), 1, 3) = '/**' then
-				only_package_doc := true;
+				parser.info.documentation_pkg_block := true;
 				exit;
 			elsif upper(substr(parser.current_data.lines(i), 1, 9)) = 'PROCEDURE' then
 				parser.current_data.is_procedure := true;
@@ -128,6 +128,7 @@ as
 				else
 					parser.current_data.program_name := replace(substr(parser.current_data.lines(i), program_name_loc1), '(');
 				end if;
+				exit;
 			elsif upper(substr(parser.current_data.lines(i), 1, 8)) = 'FUNCTION' then
 				parser.current_data.is_function := true;
 				parser.current_data.is_procedure := false;
@@ -139,10 +140,98 @@ as
 				else
 					parser.current_data.program_name := replace(substr(parser.current_data.lines(i), program_name_loc1), '(');
 				end if;
+				exit;
 			end if;
 		end loop;
 
 	end extract_package_program_name;
+
+	function parse_program_dictionary_ref (
+		pkg_owner 			in 					varchar2
+		, program_name 		in 					varchar2
+		, package_name 		in 					varchar2
+	)
+	return sys_refcursor
+
+	as
+
+		param_cursor		sys_refcursor;
+
+	begin
+
+		if package_name is null then
+			open param_cursor for
+				select
+					argument_name
+					, position
+					, sequence
+					, (case data_type
+						when 'TABLE' then type_owner || '.' || type_name
+						when 'PL/SQL RECORD' then type_owner || '.' || type_name || '.' || type_subname
+						when 'PL/SQL TABLE' then type_owner || '.' || type_name || '.' || type_subname
+						when 'PL/SQL' then 'BOOLEAN'
+						else data_type
+					  end) data_type
+					, default_value
+					, default_length
+					, radix
+					, in_out
+					, data_length
+					, data_precision
+					, type_owner
+					, type_name
+					, type_subname
+					, type_link
+				from
+					all_arguments
+				where
+					owner = pkg_owner
+				and
+					object_name = upper(program_name)
+				and
+					package_name is null
+				and 
+					data_level = 0
+				order by position asc;
+		else
+			open param_cursor for
+				select
+					argument_name
+					, position
+					, sequence
+					, (case data_type
+						when 'TABLE' then type_owner || '.' || type_name
+						when 'PL/SQL RECORD' then type_owner || '.' || type_name || '.' || type_subname
+						when 'PL/SQL TABLE' then type_owner || '.' || type_name || '.' || type_subname
+						when 'PL/SQL' then 'BOOLEAN'
+						else data_type
+					  end) data_type
+					, default_value
+					, default_length
+					, radix
+					, in_out
+					, data_length
+					, data_precision
+					, type_owner
+					, type_name
+					, type_subname
+					, type_link
+				from
+					all_arguments
+				where
+					owner = pkg_owner
+				and
+					object_name = upper(program_name)
+				and
+					package_name = upper(package_name)
+				and 
+					data_level = 0
+				order by position asc;
+		end if;
+
+		return param_cursor;
+
+	end parse_program_dictionary_ref;
 
 	procedure parse_program_dictionary (
 		parser 				in out nocopy		docdb_parse.parse_type
@@ -150,77 +239,70 @@ as
 
 	as
 
-		cursor get_package_program_parms(pkg_owner varchar2, program_name varchar2, package_name varchar2) is
-			select
-				argument_name
-				, position
-				, sequence
-				, (case data_type
-					when 'TABLE' then type_owner || '.' || type_name
-					else data_type
-				  end) data_type
-				, default_value
-				, default_length
-				, radix
-				, in_out
-				, data_length
-				, data_precision
-				, type_owner
-				, type_name
-				, type_subname
-				, type_link
-			from
-				all_arguments
-			where
-				owner = pkg_owner
-			and
-				object_name = upper(program_name)
-			and
-				package_name = upper(package_name)
-			order by position;
-
-		cursor get_program_parms(pkg_owner varchar2, program_name varchar2) is
-			select
-				argument_name
-				, position
-				, sequence
-				, (case data_type
-					when 'TABLE' then type_owner || '.' || type_name
-					else data_type
-				  end) data_type
-				, default_value
-				, default_length
-				, radix
-				, in_out
-				, data_length
-				, data_precision
-				, type_owner
-				, type_name
-				, type_subname
-				, type_link
-			from
-				all_arguments
-			where
-				owner = pkg_owner
-			and
-				object_name = upper(program_name)
-			and
-				package_name is null
-			order by position;
+		c_cursor			sys_refcursor;
+		c_argument_name		all_arguments.argument_name%type;
+		c_position			all_arguments.position%type;
+		c_sequence			all_arguments.sequence%type;
+		c_data_type			varchar2(200);
+		c_default_value		all_arguments.default_value%type;
+		c_default_length	all_arguments.default_length%type;
+		c_radix				all_arguments.radix%type;
+		c_in_out			all_arguments.in_out%type;
+		c_data_length		all_arguments.data_length%type;
+		c_data_precision	all_arguments.data_precision%type;
+		c_type_owner		all_arguments.type_owner%type;
+		c_type_name 		all_arguments.type_name%type;
+		c_type_subname		all_arguments.type_subname%type;
+		c_type_link			all_arguments.type_link%type;
 
 	begin
 
-		if parser.current_data.package_name is null then
-			-- Standalone program
-			for parms in get_program_parms(parser.current_data.owner, parser.current_data.program_name) loop
-				null;
-			end loop;
-		else
-			-- Package program, use other cursor
-			for parms in get_package_program_parms(parser.current_data.owner, parser.current_data.program_name, parser.current_data.package_name) loop
-				null;
-			end loop;
-		end if;
+		-- Increment program counter
+		parser.counters.program_counter := parser.counters.program_counter + 1;
+
+		-- Set common parts
+		parser.current_data.progr.program_name := parser.current_data.program_name;
+		parser.current_data.progr.is_function := parser.current_data.is_function;
+		parser.current_data.progr.is_procedure := parser.current_data.is_procedure;
+		parser.current_data.progr.description := parser.current_data.description;
+		parser.current_data.progr.author := parser.current_data.author;
+		parser.current_data.progr.throws := parser.current_data.throws;
+		parser.current_data.progr.return_description := parser.current_data.returns;
+
+		-- Open and loop over parameter cursor
+		c_cursor := parse_program_dictionary_ref(parser.current_data.owner, parser.current_data.program_name, parser.current_data.package_name);
+		loop
+			fetch c_cursor
+			into c_argument_name, c_position, c_sequence, c_data_type, c_default_value, c_default_length, c_radix, c_in_out, c_data_length, c_data_precision, c_type_owner, c_type_name, c_type_subname, c_type_link;
+			
+			exit when c_cursor%notfound;
+			-- Increment parameter counter
+			parser.counters.parameter_counter := parser.counters.parameter_counter + 1;
+			parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_position := c_position;
+			parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_type := c_data_type;
+			if c_in_out = 'IN/OUT' then
+				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_out := true;
+				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_in := true;
+			elsif c_in_out = 'IN' then
+				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_in := true;
+				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_out := false;
+			elsif c_in_out = 'OUT' then
+				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_out := true;
+				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_in := false;
+			end if;
+			-- Default value defined here.
+			if c_default_value is not null then
+				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_default_value := c_default_value;
+			end if;
+			-- In here we need to check if we already have a description of the parameter and if we do loop and grab description
+			if parser.current_data.params.count > 0 then
+				for docced_parms in 1..parser.current_data.params.count loop
+					if upper(c_argument_name) = upper(parser.current_data.params(docced_parms).parameter_name) then
+						parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_description := parser.current_data.params(docced_parms).parameter_description;
+					end if;
+				end loop;
+			end if;
+		end loop;
 
 	end parse_program_dictionary;
 
@@ -233,7 +315,7 @@ as
     begin
  
         if parser.current_data.package_name is not null then
-                    parser.current_data.program_name := null;
+            parser.current_data.program_name := null;
         end if;
         parser.current_data.is_function := null;
         parser.current_data.is_procedure := null;
@@ -253,6 +335,10 @@ as
         parser.current_data.progr.throws := null;
         parser.current_data.progr.parameters.delete;
         parser.current_data.progr.attributes.delete;
+        parser.info.documentation_pkg_block := false;
+        parser.info.program_spec_met := false;
+        parser.info.documentation_block_start := null;
+		parser.info.documentation_block_end := null;
  
     end reset_current_parse;
  

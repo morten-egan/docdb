@@ -51,6 +51,7 @@ as
 		, documentation_block_end		number
 		, documentation_pkg_block		boolean
 		, program_spec_met				boolean
+		, doc_written					boolean
 	);
 
 	type parse_counters is record (

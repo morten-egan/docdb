@@ -30,8 +30,6 @@ as
 
 	procedure parse_curr_documentation (
 		parser 				in out nocopy 		parse_type
-		, line_start 		in 					number
-		, line_end 			in 					number
 	)
 
 	as
@@ -40,7 +38,7 @@ as
 
 	begin
 
-		for i in line_start..line_end loop
+		for i in parser.info.documentation_block_start..parser.info.documentation_block_end loop
 			-- Lines should already be trimmed
 			if substr(parser.current_data.lines(i), 1, 3) = '/**' then
 				in_description := true;
@@ -75,10 +73,6 @@ as
 	as
 
 		expect_comment_first			boolean := true;
-		documentation_start				number := null;
-		documentation_end				number := null;
-		documentation_pkg_block			boolean := false;
-		program_spec_met				boolean := false;
 
 	begin
 
@@ -87,6 +81,7 @@ as
 			-- Set initial parameters
 			parser.current_data.package_name := substr(parser.info.package_list(info_index), instr(parser.info.package_list(info_index), '.') + 1);
 			parser.current_data.owner := substr(parser.info.package_list(info_index), 1, instr(parser.info.package_list(info_index), '.') - 1);
+			parser.info.documentation_pkg_block := false;
 
 			-- Run preparation steps
 			meta_clob_to_lines(
@@ -145,18 +140,19 @@ as
 			docdb_tools.prepare_line_for_parse(parser, i);
 
 			if substr(parser.current_data.lines(i), 1, 3) = '/**' then
-				documentation_start := i;
+				parser.info.documentation_block_start := i;
 			elsif substr(parser.current_data.lines(i), -2, 2) = '*/' then
-				documentation_end := i;
+				parser.info.doc_written := false;
+				parser.info.documentation_block_end := i;
 			elsif upper(substr(parser.current_data.lines(i), 1, 9)) = 'PROCEDURE' then
-				program_spec_met := true;
+				parser.info.program_spec_met := true;
 			elsif upper(substr(parser.current_data.lines(i), 1, 8)) = 'FUNCTION' then
-				program_spec_met := true;
+				parser.info.program_spec_met := true;
 			end if;
 
-			if documentation_start is not null and documentation_end is not null then
+			if parser.info.documentation_block_start is not null and parser.info.documentation_block_end is not null then
 				-- Send off documentation part for parsing
-				parse_curr_documentation(parser, documentation_start, documentation_end);
+				parse_curr_documentation(parser);
 
 				-- Should we continue or drop out of loop
 				if not expect_comment_first then
@@ -166,25 +162,21 @@ as
 				end if;
 
 				-- If we continue we need to grab the program name and type before we parse dictionary
-				docdb_tools.extract_package_program_name(parser, documentation_end, documentation_pkg_block);
-				if documentation_pkg_block then
+				docdb_tools.extract_package_program_name(parser, parser.info.documentation_block_end);
+				if parser.info.documentation_pkg_block then
 					docdb_tools.parse_current_as_package_doc(parser);
 				else
 					docdb_tools.parse_program_dictionary(parser);
 				end if;
 
-				-- When parsing of this section is done, reset start and end
-				documentation_start := null;
-				documentation_end := null;
-				program_spec_met := false;
-				documentation_pkg_block := false;
+				-- When parsing of this section is done, set parameters to indicate completion
+				parser.info.doc_written := true;
 				docdb_tools.reset_current_parse(parser);
-			elsif expect_comment_first and program_spec_met and documentation_start is null and documentation_end is null then
+			elsif expect_comment_first and parser.info.program_spec_met and not parser.info.doc_written then
 				-- We are in a package, and there is no documentation for a program. We still parse dictionary
-				docdb_tools.extract_package_program_name(parser, i - 1, documentation_pkg_block);
+				docdb_tools.extract_package_program_name(parser, i - 1);
 				docdb_tools.parse_program_dictionary(parser);
 
-				program_spec_met := false;
 				docdb_tools.reset_current_parse(parser);
 			end if;
 
