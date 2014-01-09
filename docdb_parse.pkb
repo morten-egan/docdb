@@ -199,7 +199,7 @@ as
 
 		-- Set the initial parameters
 		parser.parse_id := 1;
-		parser.run_id := 1;
+		parser.run_id := to_char(sysdate, 'YYYYMMDDHH24MISS');
 		parser.run_date_start := sysdate;
 		parser.run_name := name;
 		parser.run_description := description;
