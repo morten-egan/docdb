@@ -117,5 +117,18 @@ as
 		parser 				in out nocopy 		parse_type
 	);
 
+	procedure add_current_schema (
+		parser 				in out nocopy		parse_type
+		, parse_packages	in 					boolean 			default true
+		, parse_procedures 	in 					boolean				default false
+		, parse_functions	in 					boolean				default false
+	);
+
+	procedure add_package (
+		parser 				in out nocopy		parse_type
+		, package_name		in 					varchar2
+		, package_owner		in 					varchar2 default user
+	);
+
 end docdb_parse;
 /

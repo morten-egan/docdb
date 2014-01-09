@@ -11,11 +11,13 @@ as
 
 	begin
 
-		parser.current_data.lines(line_id) := trim(parser.current_data.lines(line_id));
-		parser.current_data.lines(line_id) := ltrim(parser.current_data.lines(line_id), chr(9));
-		parser.current_data.lines(line_id) := rtrim(parser.current_data.lines(line_id), chr(9));
-		-- Replace all tabs to spaces, since tabs are not translated in html
-		parser.current_data.lines(line_id) := replace(parser.current_data.lines(line_id), chr(9));
+		if line_id > 0 then
+			parser.current_data.lines(line_id) := trim(parser.current_data.lines(line_id));
+			parser.current_data.lines(line_id) := ltrim(parser.current_data.lines(line_id), chr(9));
+			parser.current_data.lines(line_id) := rtrim(parser.current_data.lines(line_id), chr(9));
+			-- Replace all tabs to spaces, since tabs are not translated in html
+			parser.current_data.lines(line_id) := replace(parser.current_data.lines(line_id), chr(9));
+		end if;
 
 	end prepare_line_for_parse;
 
@@ -80,10 +82,15 @@ as
 
 		program_name_loc1	number;
 		program_name_loc2	number;
+		line_reset			number := start_from_line;
 
 	begin
 
-		for i in start_from_line..parser.current_data.lines.count loop
+		if start_from_line <= 0 then
+			line_reset := 1;
+		end if;
+
+		for i in line_reset..parser.current_data.lines.count loop
 			docdb_tools.prepare_line_for_parse(parser, i);
 			if substr(parser.current_data.lines(i), 1, 3) = '/**' then
 				parser.info.documentation_pkg_block := true;
@@ -140,7 +147,7 @@ as
 						when 'TABLE' then type_owner || '.' || type_name
 						when 'PL/SQL RECORD' then type_owner || '.' || type_name || '.' || type_subname
 						when 'PL/SQL TABLE' then type_owner || '.' || type_name || '.' || type_subname
-						when 'PL/SQL' then 'BOOLEAN'
+						when 'PL/SQL BOOLEAN' then 'BOOLEAN'
 						else data_type
 					  end) data_type
 					, default_value
@@ -174,7 +181,7 @@ as
 						when 'TABLE' then type_owner || '.' || type_name
 						when 'PL/SQL RECORD' then type_owner || '.' || type_name || '.' || type_subname
 						when 'PL/SQL TABLE' then type_owner || '.' || type_name || '.' || type_subname
-						when 'PL/SQL' then 'BOOLEAN'
+						when 'PL/SQL BOOLEAN' then 'BOOLEAN'
 						else data_type
 					  end) data_type
 					, default_value
@@ -458,6 +465,7 @@ as
 				parser.current_data.progr.return_type := c_data_type;
 			else
 				parser.counters.parameter_counter := parser.counters.parameter_counter + 1;
+				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_name := c_argument_name;
 				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_position := c_position;
 				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_type := c_data_type;
 				if c_in_out = 'IN/OUT' then

@@ -93,6 +93,11 @@ as
 				)
 			);
 			parser.counters.package_counter := parser.counters.package_counter + 1;
+			-- If we have a package we need to set some basics
+			-- If they are documented later on, we will overwrite them
+			-- but in case the package itself is not documented, set basic
+			parser.packages(parser.counters.package_counter).package_name := parser.current_data.package_name;
+			parser.packages(parser.counters.package_counter).package_owner := parser.current_data.owner;
 		elsif parse_obj_type = 'PROCEDURE' then
 
 			-- Set initial parameters
@@ -176,14 +181,20 @@ as
 				docdb_tools.reset_current_parse(parser);
 			elsif expect_comment_first and parser.info.program_spec_met and not parser.info.doc_written then
 				-- We are in a package, and there is no documentation for a program. We still parse dictionary
-				docdb_tools.extract_package_program_name(parser, i - 1);
-				docdb_tools.parse_program_dictionary(parser);
-				docdb_tools.parse_current_as_program_doc(parser);
+				docdb_tools.extract_package_program_name(parser, i);
+				if parser.current_data.program_name is not null then
+					null;
+					/* docdb_tools.parse_program_dictionary(parser);
+					docdb_tools.parse_current_as_program_doc(parser); */
+				end if;
 
 				docdb_tools.reset_current_parse(parser);
 			end if;
 
 		end loop;
+
+		parser.info.doc_written := false;
+		parser.info.program_spec_met := false;
 
 	end parse_curr;
 
@@ -208,6 +219,9 @@ as
 		parser.counters.program_counter := 0;
 		parser.counters.parameter_counter := 0;
 		parser.counters.program_attr_counter := 0;
+		-- Info
+		parser.info.doc_written := false;
+		parser.info.program_spec_met := false;
 
 	end parse_session_start;
 
@@ -274,7 +288,9 @@ as
 			where
 				owner = upper(schema)
 			and
-				object_type = obj_type;
+				object_type = obj_type
+			order by
+				object_name;
 
 	begin
 
@@ -301,6 +317,36 @@ as
 		end if;
 
 	end add_schema_to_session;
+
+	procedure add_current_schema (
+		parser 				in out nocopy		parse_type
+		, parse_packages	in 					boolean 			default true
+		, parse_procedures 	in 					boolean				default false
+		, parse_functions	in 					boolean				default false
+	)
+
+	as
+
+	begin
+
+		docdb_parse.add_schema_to_session(parser, user, parse_packages, parse_procedures, parse_functions);
+
+	end add_current_schema;
+
+	procedure add_package (
+		parser 				in out nocopy		parse_type
+		, package_name		in 					varchar2
+		, package_owner		in 					varchar2 default user
+	)
+
+	as
+
+	begin
+
+		parser.info.schema_list(parser.info.schema_list.count + 1) := upper(package_owner);
+		parser.info.package_list(parser.info.package_list.count + 1) := parser.info.schema_list(parser.info.schema_list.count) || '.' || upper(package_name);
+
+	end add_package;
 
 end docdb_parse;
 /
