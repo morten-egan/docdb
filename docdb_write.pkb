@@ -203,6 +203,18 @@ as
 
     end write_angular;
 
+    procedure write_dump (
+        parser              in out nocopy       docdb_parse.parse_type
+    )
+
+    as
+
+    begin
+
+        actual_write(docdb_pieces('final'));
+
+    end write_dump;
+
 	procedure write_doc (
         parser              in out nocopy       docdb_parse.parse_type
     )
@@ -219,6 +231,8 @@ as
     			write_ember(parser);
     		when 'ANGULAR' then
     			write_angular(parser);
+            when 'DUMP' then
+                write_dump(parser);
     	end case;
 
     end write_doc;
