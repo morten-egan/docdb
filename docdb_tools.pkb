@@ -622,7 +622,7 @@ as
 
     end check_if_schema_already_there;
 
-    function check_if_package_already_loaded (
+    function check_if_pkg_already_loaded (
     	parser 				in out nocopy		docdb_parse.parse_type
     	, schema_name 		in 					varchar2
     	, package_name 		in 					varchar2
@@ -647,7 +647,7 @@ as
 
     	return false;
 
-    end check_if_package_already_loaded;
+    end check_if_pkg_already_loaded;
 
 end docdb_tools;
 /

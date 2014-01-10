@@ -1,4 +1,5 @@
 create or replace package docdb_tools
+authid current_user
 
 as
 
@@ -50,7 +51,7 @@ as
     )
     return boolean;
 
-    function check_if_package_already_loaded (
+    function check_if_pkg_already_loaded (
     	parser 				in out nocopy		docdb_parse.parse_type
     	, schema_name 		in 					varchar2
     	, package_name 		in 					varchar2

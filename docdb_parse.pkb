@@ -348,7 +348,7 @@ as
 			parser.info.schema_list(parser.info.schema_list.count + 1) := upper(package_owner);
 			parser.info.package_list(parser.info.package_list.count + 1) := parser.info.schema_list(parser.info.schema_list.count) || '.' || upper(package_name);
 		else
-			if not docdb_tools.check_if_package_already_loaded(parser, package_owner, package_name) then
+			if not docdb_tools.check_if_pkg_already_loaded(parser, package_owner, package_name) then
 				parser.info.package_list(parser.info.package_list.count + 1) := parser.info.schema_list(parser.info.schema_list.count) || '.' || upper(package_name);
 			end if;
 		end if;
