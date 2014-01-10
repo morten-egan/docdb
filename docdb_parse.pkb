@@ -59,6 +59,8 @@ as
 				in_description := false;
 				-- Parse line
 				docdb_tools.parse_documentation_line(parser, i);
+			elsif not in_description then
+				docdb_tools.parse_documentation_line(parser, i);
 			end if;
 		end loop;
 
@@ -183,9 +185,8 @@ as
 				-- We are in a package, and there is no documentation for a program. We still parse dictionary
 				docdb_tools.extract_package_program_name(parser, i);
 				if parser.current_data.program_name is not null then
-					null;
-					/* docdb_tools.parse_program_dictionary(parser);
-					docdb_tools.parse_current_as_program_doc(parser); */
+					docdb_tools.parse_program_dictionary(parser);
+					docdb_tools.parse_current_as_program_doc(parser);
 				end if;
 
 				docdb_tools.reset_current_parse(parser);
@@ -212,7 +213,7 @@ as
 		parser.parse_id := 1;
 		parser.run_id := to_char(sysdate, 'YYYYMMDDHH24MISS');
 		parser.run_date_start := sysdate;
-		parser.run_name := name;
+		parser.run_name := (case when name is null then 'DOCDB' else name end);
 		parser.run_description := description;
 		-- Counters
 		parser.counters.package_counter := 0;
@@ -343,8 +344,14 @@ as
 
 	begin
 
-		parser.info.schema_list(parser.info.schema_list.count + 1) := upper(package_owner);
-		parser.info.package_list(parser.info.package_list.count + 1) := parser.info.schema_list(parser.info.schema_list.count) || '.' || upper(package_name);
+		if not docdb_tools.check_if_schema_already_there(parser, package_owner) then
+			parser.info.schema_list(parser.info.schema_list.count + 1) := upper(package_owner);
+			parser.info.package_list(parser.info.package_list.count + 1) := parser.info.schema_list(parser.info.schema_list.count) || '.' || upper(package_name);
+		else
+			if not docdb_tools.check_if_package_already_loaded(parser, package_owner, package_name) then
+				parser.info.package_list(parser.info.package_list.count + 1) := parser.info.schema_list(parser.info.schema_list.count) || '.' || upper(package_name);
+			end if;
+		end if;
 
 	end add_package;
 

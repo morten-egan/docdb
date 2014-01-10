@@ -16,7 +16,7 @@ as
 			parser.current_data.lines(line_id) := ltrim(parser.current_data.lines(line_id), chr(9));
 			parser.current_data.lines(line_id) := rtrim(parser.current_data.lines(line_id), chr(9));
 			-- Replace all tabs to spaces, since tabs are not translated in html
-			parser.current_data.lines(line_id) := replace(parser.current_data.lines(line_id), chr(9));
+			parser.current_data.lines(line_id) := replace(parser.current_data.lines(line_id), chr(9), ' ');
 		end if;
 
 	end prepare_line_for_parse;
@@ -485,7 +485,9 @@ as
 				-- In here we need to check if we already have a description of the parameter and if we do loop and grab description
 				if parser.current_data.params.count > 0 then
 					for docced_parms in 1..parser.current_data.params.count loop
+						dbms_output.put_line('Compare:' || upper(parser.current_data.params(docced_parms).parameter_name) || ' to:' || upper(c_argument_name));
 						if upper(c_argument_name) = upper(parser.current_data.params(docced_parms).parameter_name) then
+							dbms_output.put_line('Setting desc');
 							parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_description := parser.current_data.params(docced_parms).parameter_description;
 						end if;
 					end loop;
@@ -599,6 +601,53 @@ as
     	end if;
 
     end parse_current_as_program_doc;
+
+    function check_if_schema_already_there (
+    	parser 				in out nocopy 		docdb_parse.parse_type
+    	, schema_name		in 					varchar2
+    )
+    return boolean
+
+    as
+
+    begin
+
+    	for i in 1..parser.info.schema_list.count loop
+    		if upper(parser.info.schema_list(i)) = upper(schema_name) then
+    			return true;
+    		end if;
+    	end loop;
+
+    	return false;
+
+    end check_if_schema_already_there;
+
+    function check_if_package_already_loaded (
+    	parser 				in out nocopy		docdb_parse.parse_type
+    	, schema_name 		in 					varchar2
+    	, package_name 		in 					varchar2
+    )
+    return boolean
+
+    as
+
+    begin
+
+    	if not check_if_schema_already_there(parser, schema_name) then
+    		-- Schema is not loaded, therefore package is not loaded either
+    		return false;
+    	else
+    		-- We need to check the package list
+    		for i in 1..parser.info.package_list.count loop
+    			if parser.info.package_list(i) = upper(schema_name) || '.' || upper(package_name) then
+    				return true;
+    			end if;
+    		end loop;
+    	end if;
+
+    	return false;
+
+    end check_if_package_already_loaded;
 
 end docdb_tools;
 /

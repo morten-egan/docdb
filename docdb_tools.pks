@@ -44,5 +44,18 @@ as
     	parser 				in out nocopy		docdb_parse.parse_type
     );
 
+    function check_if_schema_already_there (
+    	parser 				in out nocopy 		docdb_parse.parse_type
+    	, schema_name		in 					varchar2
+    )
+    return boolean;
+
+    function check_if_package_already_loaded (
+    	parser 				in out nocopy		docdb_parse.parse_type
+    	, schema_name 		in 					varchar2
+    	, package_name 		in 					varchar2
+    )
+    return boolean;
+
 end docdb_tools;
 /

@@ -12,6 +12,7 @@ as
     pkg_idx             number;
     prg_idx             number;
     par_idx             number;
+    atr_idx             varchar2(4000);
 
     procedure actual_write (
         piece               in                  clob
@@ -226,6 +227,8 @@ as
 
     as
 
+        ember_attrib_counter    number := 1;
+
     begin
 
         -- Create pieces
@@ -237,6 +240,7 @@ as
         cp('package_list', false);
         cp('program_list', false);
         cp('parameter_list', false);
+        cp('attribute_list', false);
 
         -- Loop over packages
         pkg_idx := parser.packages.first;
@@ -268,6 +272,25 @@ as
                 end loop;
                 aetp(null, 'parameter_list', null, '[]');
 
+                -- Loop over all attributes
+                atr_idx := parser.packages(pkg_idx).programs(prg_idx).attributes.first;
+                while atr_idx is not null loop
+                    aetp(ember_attrib_counter, 'attribute_list');
+
+                    tp('attributes', '
+                        id: ' || ember_attrib_counter || ',
+                        attribName: ''' || atr_idx || ''',
+                        attribSet: true,
+                        attribProgram_id: ' || prg_idx || '
+                    ', true);
+                    aetp(null, 'attributes_temp', null, '{}');
+                    aetp('attributes_temp', 'attributes');
+
+                    atr_idx := parser.packages(pkg_idx).programs(prg_idx).attributes.next(atr_idx);
+                    ember_attrib_counter := ember_attrib_counter + 1;
+                end loop;
+                aetp(null, 'attribute_list', null, '[]');
+
                 -- Create program record
                 tp('programs', '
                     id: ' || prg_idx || ',
@@ -278,6 +301,7 @@ as
                     programReturn: ''' || parser.packages(pkg_idx).programs(prg_idx).return_description || ''',
                     programReturnType: ''' || parser.packages(pkg_idx).programs(prg_idx).return_type || ''',
                     programParams_ids: '|| docdb_pieces('parameter_list') ||',
+                    programAttrib_ids: '|| docdb_pieces('attribute_list') ||',
                     programPackage_id: ' || pkg_idx || '
                 ', true);
                 aetp(null, 'programs_temp', null, '{}');
@@ -285,6 +309,7 @@ as
 
                 prg_idx := parser.packages(pkg_idx).programs.next(prg_idx);
                 rp('parameter_list');
+                rp('attribute_list');
             end loop;
             aetp(null, 'program_list', null, '[]');
 
@@ -307,6 +332,11 @@ as
             rp('program_list');
         end loop;
         aetp(null, 'package_list', null, '[]');
+
+        -- Complete attribute piece
+        aetp(null, 'attributes', null, '[]');
+        pstp('attributes', 'Docapp.Attrib.FIXTURES = ');
+        astp('attributes', ';');
 
         -- Complete parameter piece
         aetp(null, 'parameters', null, '[]');
@@ -393,6 +423,19 @@ as
         commit;
 
     end write_doc;
+
+    procedure set_write_attribute (
+        attribute_name      in                  varchar2
+        , attribute_value   in                  varchar2
+    )
+
+    as
+
+    begin
+
+        docdb_write_attributes(attribute_name) := attribute_value;
+
+    end set_write_attribute;
 
 begin
 

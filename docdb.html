@@ -130,7 +130,11 @@
 		{{#each program in programs_ids}}
 			<div class="page-header">
 	  			<h4><small>{{packageName}}</small>.{{program.programName}}</h4>
-	  			<h6><span class="label label-default">Commit</span></h6>
+	  			<h6>
+	  			{{#each attrib in program.programAttrib_ids}}
+	  				<span class="label label-info">{{attrib.attribName}}</span>
+	  			{{/each}}
+	  			</h6>
 			</div>
 			<div>
 				<h4>Description:</h4>
