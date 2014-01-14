@@ -1,0 +1,107 @@
+<div class="row" style="min-height: 100%;">
+	    	<div class="col-md-3" style="min-height: 100%;">
+	    		<div class="row">
+	    			<div class="col-md-12" style="background: #2980b9; color: white;">
+	    				<div class="text-center"><h4>{{packages.docname}} <small>docdb</small></h4></div>
+	    				<div class="text-center">
+	    					<div class="col-md-12">
+								<input class="form-control" placeholder="Search ping documentation" ng-model="query">
+							</div>
+							<div class="col-md-12">
+								<div class="checkbox" style="padding-top: 3px;">
+									<label>
+										<input type="checkbox" ng-model="checked" style="position:absolute;top:-9999px;left:-9999px;"> Show attribute filters
+									</label>
+								</div>
+							</div>
+							<div ng-show="checked">
+								<div class="row">
+									<div class="col-md-5">
+										<div class="checkbox">
+											<div style="padding-left: 5px;">
+												<label>
+													<input type="checkbox"> Commit
+												</label>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-5">
+										<div class="checkbox">
+											<div style="padding-left: 5px;">
+												<label>
+													<input type="checkbox"> Update
+												</label>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-5">
+										<div class="checkbox">
+											<div style="padding-left: 5px;">
+												<label>
+													<input type="checkbox"> Commit
+												</label>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-5">
+										<div class="checkbox">
+											<div style="padding-left: 5px;">
+												<label>
+													<input type="checkbox"> Update
+												</label>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div>
+								&nbsp;
+							</div>
+						</div>
+	    			</div>
+	    			<div class="col-md-12" style="background: #343131; color: white; font-size: 12px; min-height: 6000px;">
+	    				<div>
+							&nbsp;
+						</div>
+						<div class="text-center">
+							<p style="padding-left: 15px;"><a href="#" class="homelink">Home</a></p>
+						</div>
+							<div><h3 style="padding-left: 15px; color: #CCFF99;">Packages:<p class="pull-right"><span class="badge pull-right">{{(packages.packagelist|filter:query).length}}</span></p></h3></div>
+							<div ng-repeat="package in packages.packagelist | filter:query">
+							<!-- div ng-repeat="package in packages | filter:query | filter:filterFn" -->
+									<p style="padding-left: 15px;"><a href="#/packages/{{package.id}}" class="menulink">{{package.packageName}}</a></p>
+							</div>
+	    			</div>
+	    		</div>
+	    	</div>
+	  		<div class="col-md-8" style="min-height: 100%;">
+	  			<div class="row">
+		 			<div class="col-md-6">
+		 				<p style="padding: 10px; font-size: 90%;">
+							Documentation date: {{packages.docgenerated}}.
+						</p>
+					</div>
+					<div class="col-md-6 text-right">
+						<p style="padding: 10px; font-size: 90%;">
+							<span class="badge">{{packages.docname}}</span>
+						</p>
+					</div>
+				</div>
+				<div class="row">
+						<div class="col-sm-6 col-md-4" ng-repeat="package in packages.packagelist | filter:query">
+							<div class="thumbnail">
+								<img src="http://placehold.it/300x200" alt="...">
+									<div class="caption">
+										<h4>{{package.packageName}}</h4>
+										<h5><small>{{package.author}}</small></h5>
+										<h5>{{package.project}}</h5>
+										<p><h5><small>{{package.description}}</small></h5></p>
+										<p><a href="#/packages/{{package.id}}" class="btn btn-primary" role="button">Details</a></p>
+									</div>
+							</div>
+						</div>
+				</div>
+	  		</div>
+	    </div>
