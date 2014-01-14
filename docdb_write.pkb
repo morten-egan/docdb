@@ -380,7 +380,105 @@ as
 
     as
 
+        angular_attrib_counter      number := 1;
+
     begin
+
+        cp('main', false);
+        cp('packages');
+        cp('programs');
+        cp('attributes');
+
+        -- Lets loop through packages
+        pkg_idx := parser.packages.first;
+        while pkg_idx is not null loop
+            -- Loop over programs and build the programs record
+            prg_idx := parser.packages(pkg_idx).programs.first;
+            while prg_idx is not null loop
+
+                -- Loop over all attributes
+                atr_idx := parser.packages(pkg_idx).programs(prg_idx).attributes.first;
+                while atr_idx is not null loop
+
+                    tp('attributes', '
+                        "id": ' || angular_attrib_counter || ',
+                        "attribName": "' || atr_idx || '",
+                        "attribSet": true
+                    ', true);
+                    aetp(null, 'attributes_temp', null, '{}');
+                    aetp('attributes_temp', 'attributes');
+
+                    atr_idx := parser.packages(pkg_idx).programs(prg_idx).attributes.next(atr_idx);
+                    angular_attrib_counter := angular_attrib_counter + 1;
+                end loop;
+                aetp(null, 'attributes', null, '[]');
+
+                -- Loop over parameters and create the parameters record list
+                par_idx := parser.packages(pkg_idx).programs(prg_idx).parameters.first;
+                while par_idx is not null loop
+
+                    tp('parameters', '
+                        "id": ' || par_idx || ',
+                        "paramName": "' || parser.packages(pkg_idx).programs(prg_idx).parameters(par_idx).parameter_name || '",
+                        "paramType": "' || parser.packages(pkg_idx).programs(prg_idx).parameters(par_idx).parameter_type || '",
+                        "paramDescription": "' || parser.packages(pkg_idx).programs(prg_idx).parameters(par_idx).parameter_description || '",
+                        "paramDefaultValue": "' || parser.packages(pkg_idx).programs(prg_idx).parameters(par_idx).parameter_default_value || '"
+                    ', true);
+                    aetp(null, 'parameters_temp', null, '{}');
+                    aetp('parameters_temp', 'parameters');
+                    
+                    par_idx := parser.packages(pkg_idx).programs(prg_idx).parameters.next(par_idx);
+                end loop;
+                aetp(null, 'parameters', null, '[]');
+
+                -- Create the individual program record
+                tp('programs', '
+                    "id": "'|| prg_idx ||'",
+                    "programName": ' || parser.packages(pkg_idx).programs(prg_idx).program_name || '",
+                    "programType": "' || (case parser.packages(pkg_idx).programs(prg_idx).is_function when true then 'FUNCTION' else 'PROCEDURE' end) || '",
+                    "programDescription": "' || parser.packages(pkg_idx).programs(prg_idx).description || '",
+                    "programAuthor": "' || parser.packages(pkg_idx).programs(prg_idx).author || '",
+                    "programReturn": "' || parser.packages(pkg_idx).programs(prg_idx).return_description || '",
+                    "programReturnType": "' || parser.packages(pkg_idx).programs(prg_idx).return_type || '",
+                    "programParameters": '|| docdb_pieces('parameters') || ',
+                    "programAttributes": '|| docdb_pieces('attributes') || '
+                ', true);
+                aetp(null, 'programs_temp', null, '{}');
+                aetp('programs_temp', 'programs');
+                
+                prg_idx := parser.packages(pkg_idx).programs.next(prg_idx);
+                rp('parameters');
+                rp('attributes');
+            end loop;
+            aetp(null, 'programs', null, '[]');
+
+            -- Create the individual package record
+            tp('packages', '
+                "id": '|| pkg_idx || ',
+                "packageOwner": "' || parser.packages(pkg_idx).package_owner || '",
+                "packageName": "' || parser.packages(pkg_idx).package_name || '",
+                "description": "' || parser.packages(pkg_idx).description || '",
+                "project": "' || parser.packages(pkg_idx).project || '",
+                "author": "' || parser.packages(pkg_idx).author || '",
+                "version": "' || parser.packages(pkg_idx).version || '",
+                "programs": '|| docdb_pieces('programs') || '
+            ', true);
+            aetp(null, 'packages_temp', null, '{}');
+            aetp('packages_temp', 'packages');
+
+            pkg_idx := parser.packages.next(pkg_idx);
+            rp('programs');
+        end loop;
+        aetp(null, 'packages', null, '[]');
+
+        tp('main', 
+            '"docname": "' || parser.run_name || '",
+            "docgenerated": "' || to_char(parser.run_date_start, 'DD Mon YYYY') || '",
+            "packagelist": ');
+        atp('main', 'packages');
+        aetp(null, 'main', null, '{}');
+
+        atp('final', 'main', true);
 
         actual_write(docdb_pieces('final'));
 
@@ -422,6 +520,18 @@ as
 
         commit;
 
+        -- Once written - Reset all write contents
+        rp('main');
+        rp('packages');
+        rp('programs');
+        rp('parameters');
+        rp('attributes');
+        rp('package_list');
+        rp('program_list');
+        rp('parameter_list');
+        rp('attribute_list');
+        rp('final');
+
     end write_doc;
 
     procedure set_write_attribute (
@@ -442,7 +552,7 @@ begin
     -- Set package defaults
     docdb_write_attributes('out_default')           := 'TABLE';
     docdb_write_attributes('out_default_val')       := 'DOCDB_OUTPUT';
-    docdb_write_attributes('out_default_format')    := 'EMBER';
+    docdb_write_attributes('out_default_format')    := 'ANGULAR';
     docdb_write_attributes('docdb_file_name')       := 'docdb_fixtures.js';
 
     -- Make sure final piece exists

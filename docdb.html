@@ -129,17 +129,20 @@
 		<!-- Detailed descriptions -->
 		{{#each program in programs_ids}}
 			<div class="page-header">
-	  			<h4><small>{{packageName}}</small>.{{program.programName}}</h4>
+	  			<h4>{{program.programName}}</h4>
+	  			<h5><small>{{program.programType}} in package {{packageName}}<small></h5>
 	  			<h6>
 	  			{{#each attrib in program.programAttrib_ids}}
 	  				<span class="label label-info">{{attrib.attribName}}</span>
 	  			{{/each}}
 	  			</h6>
 			</div>
-			<div>
-				<h4>Description:</h4>
-				<p>{{program.programDescription}}</p>
-			</div>
+			{{#if program.programDescription}}
+				<div>
+					<h4>Description:</h4>
+					<p>{{program.programDescription}}</p>
+				</div>
+			{{/if}}
 			<div>
 				<h4>Parameters:</h4>
 				<table class="table table-bordered" style="font-size: 12px;">
@@ -191,7 +194,7 @@
 							&nbsp;
 						</div>
 						<div class="text-center">
-							<p style="padding-left: 15px;">{{#link-to "docapp" class="homelink"}}Home{{/link-to}}</p>
+							<p style="padding-left: 15px;">{{#link-to "docapp" class="homelink"}}Home{{/link-to}} {{remaining}}</p>
 						</div>
 						{{#each package in packages_ids}}
 							<div>

@@ -104,7 +104,8 @@ as
 				if program_name_loc2 > 0 then
 					parser.current_data.program_name := substr(parser.current_data.lines(i), program_name_loc1, program_name_loc2 - program_name_loc1);
 				else
-					parser.current_data.program_name := replace(substr(parser.current_data.lines(i), program_name_loc1), '(');
+					program_name_loc2 := instr(parser.current_data.lines(i), '(', program_name_loc1);
+					parser.current_data.program_name : substr(parser.current_data.lines(i), program_name_loc1, program_name_loc2 - program_name_loc1);
 				end if;
 				exit;
 			elsif upper(substr(parser.current_data.lines(i), 1, 8)) = 'FUNCTION' then
