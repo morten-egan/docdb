@@ -38,4 +38,9 @@ You can create documentation in a couple of different ways. Below are some examp
 	/
 
 *To set the output directory to an existing or new directory with a non-default name:*
-		
+
+	begin
+		docdb.set_option('out_default_val', 'YOUR_DIRECTORY_NAME');
+		docdb.document_current;
+	end;
+	/
