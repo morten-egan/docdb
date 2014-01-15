@@ -16,11 +16,26 @@ To do the installation, start sqlplus and login as the schema that should own th
 
 At the sqlplus prompt run the following:
 
-	@<location_of_docdb_files>/install.sql
+	@[location_of_docdb_files]/install.sql
 
 Usage:
 --------------------
 
 You can create documentation in a couple of different ways. Below are some examples of the most common usages:
 
-*create documentation of the currently connected user*
+1. Create documentation of the currently connected user:
+
+	begin
+		docdb.document_current;
+	end;
+	/
+
+2. Create documentation of a schema that you have execute privileges to:
+
+	begin
+		docdb.document_schema('schema_name_in_here');
+	end;
+	/
+
+3. To set the output directory to an existing or new directory with a non-default name:
+		
