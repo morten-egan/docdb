@@ -24,18 +24,14 @@ Usage:
 You can create documentation in a couple of different ways. Below are some examples of the most common usages:
 
 1. Create documentation of the currently connected user:
-
 	begin
 		docdb.document_current;
 	end;
 	/
-
 2. Create documentation of a schema that you have execute privileges to:
-
 	begin
 		docdb.document_schema('schema_name_in_here');
 	end;
 	/
-
 3. To set the output directory to an existing or new directory with a non-default name:
 		
