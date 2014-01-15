@@ -44,3 +44,5 @@ You can create documentation in a couple of different ways. Below are some examp
 		docdb.document_current;
 	end;
 	/
+
+*Create documentation of a list of schemas:*
