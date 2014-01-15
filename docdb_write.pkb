@@ -478,6 +478,11 @@ as
         atp('main', 'packages');
         aetp(null, 'main', null, '{}');
 
+        pstp('main', 'docdbControllers.factory("docdbDataFac", function(){
+                return { sharedObject: ');
+        astp('main', '};   
+                });');
+
         atp('final', 'main', true);
 
         actual_write(docdb_pieces('final'));

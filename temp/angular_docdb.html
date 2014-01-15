@@ -5,6 +5,55 @@
 <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
 <title>ANGULAR TEST</title>
 
+<style>
+
+	.menulink {
+		color: white;
+		font-weight: bold;
+		text-decoration: none;
+	}
+
+	.menulink:hover {
+		font-size: 110%;
+		color: white;
+		font-weight: bold;
+		text-decoration: none;
+	}
+
+	.selected {
+		color: #E6E6B8;
+		font-size: 120%;
+		font-weight: bold;
+		text-decoration: none;
+	}
+
+	.selected:hover {
+		color: #E6E6B8;
+		text-decoration: none;
+	}
+
+	.homelink {
+		color: white;
+	}
+
+	.homelink:hover {
+		color: white;
+	}
+
+	.codeName {
+		color: #3385FF;
+	}
+
+	.codeType {
+		color: #94B8FF;
+	}
+
+	.attrib {
+		margin-right: 5px;
+	}
+
+</style>
+
 <script type="text/ng-template" id="docdb-front.html">
 	<div class="row" style="min-height: 100%;">
 	    	<div class="col-md-3" style="min-height: 100%;">
@@ -120,6 +169,7 @@
 	    	<div class="col-md-3" style="min-height: 100%;">
 	    		<div class="row">
 	    			<div class="col-md-12" style="background: #2980b9; color: white;">
+	    			<div id="thetop">&nbsp;</div>
 	    				<div class="text-center"><h4>{{packages.docname}} <small>docdb</small></h4></div>
 	    				<div class="text-center">
 	    					<div class="col-md-12">
@@ -210,7 +260,100 @@
 				<div class="row">
 					<div ng-repeat="package in packages.packagelist">
 						<div ng-if="packageId == package.id">
-							{{package.id}}
+							<div class="col-md-12">
+								<div class="page-header">
+	  								<h1>Package <small>{{package.packageName}}</small></h1>
+	  							</div>
+
+	  							<!-- Procedure summary -->
+	  							<div ng-if="proc_count > 0">
+	  								<div>
+										<div class="panel panel-default">
+											<div class="panel-heading">
+			    								<h3 class="panel-title">Procedure summary:</h3>
+			  								</div>
+			  								<div class="panel-body">
+			  									<div ng-repeat="program in package.programs">
+			  										<div ng-if="program.programType == 'PROCEDURE'">
+												    	<code style="white-space: normal;"><span class="codeName"><a href="#/packages/{{packageId}}#{{program.programName}}" target="_self">{{program.programName}}</a></span>(
+												    	<span ng-repeat="parameter in program.programParameters">
+												    		{{parameter.paramName}} <span class="codeType">{{parameter.paramType}}</span>
+												    	</span>
+												    	);</code>
+					    								<p style="padding-left: 20px;">{{program.programDescription}}</p>
+					    							</div>
+			  									</div>
+			  								</div>
+			  							</div>
+			  						</div>
+	  							</div>
+
+	  							<!-- Function summary -->
+	  							<div ng-if="func_count > 0">
+	  								<div>
+										<div class="panel panel-default">
+											<div class="panel-heading">
+			    								<h3 class="panel-title">Function summary:</h3>
+			  								</div>
+			  								<div class="panel-body">
+			  									<div ng-repeat="program in package.programs">
+			  										<div ng-if="program.programType == 'FUNCTION'">
+												    	<code style="white-space: normal;"><span class="codeName"><a href="#/packages/{{packageId}}#{{program.programName}}" target="_self">{{program.programName}}</a></span>(
+												    	<span ng-repeat="parameter in program.programParameters">
+												    		{{parameter.paramName}} <span class="codeType">{{parameter.paramType}}</span>
+												    	</span>
+												    	)<br>
+												    	return {{program.programReturnType}};</code>
+					    								<p style="padding-left: 20px;">{{program.programDescription}}</p>
+					    							</div>
+			  									</div>
+			  								</div>
+			  							</div>
+			  						</div>
+	  							</div>
+
+	  							<!-- All programs details -->
+	  							<div ng-repeat="program in package.programs">
+	  								<div class="page-header" id="{{program.programName}}">
+	  									<h4><strong>{{program.programName}}</strong><small> <a href="#/packages/{{packageId}}#thetop" target="_self">back to top</a></small></h4>
+	  									<h5><small>{{program.programType}} in package {{package.packageName}}<small></h5>
+	  									<h6>
+	  										<span ng-repeat="attrib in program.programAttributes" class="label label-info attrib">{{attrib.attribName}}</span>
+	  									</h6>
+									</div>
+									<div ng-if="program.programDescription">
+										<h4>Description:</h4>
+										<p>{{program.programDescription}}</p>
+									</div>
+									<div ng-if="program.programParameters.length > 0">
+										<h4>Parameters:</h4>
+										<table class="table table-bordered" style="font-size: 12px;">
+											<thead>
+												<tr>
+													<th>Parameter</th>
+													<th>Type</th>
+													<th>Default</th>
+													<th>Details</th>
+												</tr>
+											</thead>
+											<tbody>
+													<tr ng-repeat="parameter in program.programParameters">
+														<td>{{parameter.paramName}}</td>
+														<td><span class="label label-primary">{{parameter.paramType}}</span></td>
+														<td>-</td>
+														<td>{{parameter.paramDescription}}</td>
+													</tr>
+											</tbody>
+										</table>
+									</div>
+									<div ng-if="program.programReturnType">
+										<h4>Returns:</h4>
+										<h5><span class="label label-primary">{{program.programReturnType}}</span></h5>
+										<h5 ng-if="program.programReturn">{{program.programReturn}}</h5>
+									</div>
+	  							</div>
+
+	  						</div>
 						</div>
 					</div>
 				</div>
@@ -218,50 +361,6 @@
 	    </div>
 </script>
 
-<style>
-
-	.menulink {
-		color: white;
-		font-weight: bold;
-		text-decoration: none;
-	}
-
-	.menulink:hover {
-		font-size: 110%;
-		color: white;
-		font-weight: bold;
-		text-decoration: none;
-	}
-
-	.selected {
-		color: #E6E6B8;
-		font-size: 120%;
-		font-weight: bold;
-		text-decoration: none;
-	}
-
-	.selected:hover {
-		color: #E6E6B8;
-		text-decoration: none;
-	}
-
-	.homelink {
-		color: white;
-	}
-
-	.homelink:hover {
-		color: white;
-	}
-
-	.codeName {
-		color: #3385FF;
-	}
-
-	.codeType {
-		color: #94B8FF;
-	}
-
-</style>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular-route.js"></script>
 <script src="angular_app.js"></script>

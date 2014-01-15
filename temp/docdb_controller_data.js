@@ -1,4 +1,4 @@
-docdbControllers.factory("myService", function(){
+docdbControllers.factory("docdbDataFac", function(){
 
   return {
     sharedObject: {"docname": "ADMINIMPL",
