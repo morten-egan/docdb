@@ -555,10 +555,10 @@ as
 begin
 
     -- Set package defaults
-    docdb_write_attributes('out_default')           := 'TABLE';
+    docdb_write_attributes('out_default')           := 'DIRECTORY';
     docdb_write_attributes('out_default_val')       := 'DOCDB_OUTPUT';
     docdb_write_attributes('out_default_format')    := 'ANGULAR';
-    docdb_write_attributes('docdb_file_name')       := 'docdb_fixtures.js';
+    docdb_write_attributes('docdb_file_name')       := 'docdb_controller_data.js';
 
     -- Make sure final piece exists
     docdb_pieces('final') := '';
