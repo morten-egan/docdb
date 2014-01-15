@@ -15,4 +15,12 @@ You can install the package into any schema that meets the following requirement
 To do the installation, start sqlplus and login as the schema that should own the package. It does not matter what schema this package is installed to, since it will always run with the privileges of the user executing the procedures, and so will only be able to see packages that they are privileged to see.
 
 At the sqlplus prompt run the following:
-@<location_of_docdb_files>/install.sql
+
+	@&lsaquo;location_of_docdb_files&rsaquo;/install.sql
+
+Usage:
+--------------------
+
+You can create documentation in a couple of different ways. Below are some examples of the most common usages:
+
+*create documentation of the currently connected user*
