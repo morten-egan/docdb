@@ -8,7 +8,7 @@ Installation instructions:
 
 First of download docdb_release.zip. This is always the newest version available:
 
-[a relative link](docdb_release.zip?raw=true)
+[LATEST DOCDB_RELEASE.ZIP](docdb_release.zip?raw=true)
 
 You can install the package into any schema that meets the following requirements:
 
