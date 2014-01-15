@@ -16,7 +16,7 @@ To do the installation, start sqlplus and login as the schema that should own th
 
 At the sqlplus prompt run the following:
 
-	@&lsaquo;location_of_docdb_files&rsaquo;/install.sql
+	@<location_of_docdb_files>/install.sql
 
 Usage:
 --------------------
