@@ -10,6 +10,8 @@ First of download docdb_release.zip. This is always the newest version available
 
 [LATEST DOCDB_RELEASE.ZIP](docdb_release.zip?raw=true)
 
+Extract the zip to a seperate location on the server.
+
 You can install the package into any schema that meets the following requirements:
 
 * Has the "create procedure" privilege
@@ -37,16 +39,35 @@ You can create documentation in a couple of different ways. Below are some examp
 *Create documentation of a schema that you have execute privileges to:*
 
 	begin
-		docdb.document_schema('schema_name_in_here');
+		docdb.document_schema(schema_name => 'schema_name_in_here');
 	end;
 	/
 
-*To set the output directory to an existing or new directory with a non-default name:*
+*To set the output directory to a different directory with a non-default name:*
 
+	declare
+		settings	docdb.docdb_settings;
 	begin
-		docdb.set_option('out_default_val', 'YOUR_DIRECTORY_NAME');
-		docdb.document_current;
+		settings('out_default_val', 'YOUR_DIRECTORY_NAME');
+		docdb.document_current(document_settings => settings);
 	end;
 	/
 
 *Create documentation of a list of schemas:*
+
+	begin
+		docdb.document_schema(schema_name => 'schema1,schema2,schema3');
+	end;
+	/
+
+Looking at the result:
+----------------------------
+
+To see the documentation, take the file generated in the output directory (docdb_controller_data.js) and place it alongside the html and js files in the zip file. To work, it needs the following files:
+
+* docdb.html
+* docdb_controller.js
+* docdb_controller_2.js
+* angular_app.js
+
+Place docdb_controller_data.js in the same location, and open docdb.html in your browser.

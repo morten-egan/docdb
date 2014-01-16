@@ -507,12 +507,21 @@ as
 
     as
 
+        settings_idx        varchar2(250);
+
     begin
 
         -- Set parms from parser
         docdb_write_attributes('docid') := parser.run_id;
         docdb_write_attributes('parseid') := parser.parse_id;
         docdb_write_attributes('doc_date') := parser.run_date_start;
+
+        -- Overwrite settings defined by the user
+        settings_idx := parser.info.settings.first;
+        while settings_idx is not null loop
+            docdb_write_attributes(settings_idx) := parser.info.settings(settings_idx);
+            settings_idx := parser.info.settings.next(settings_idx);
+        end loop;
 
         case docdb_write_attributes('out_default_format')
             when 'EMBER' then

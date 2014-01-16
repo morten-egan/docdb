@@ -28,6 +28,37 @@ as
 
 	end meta_clob_to_lines;
 
+	function get_token(
+		the_list	varchar2,
+		the_index	number,
+		delim		varchar2 := ','
+	)
+	return    varchar2
+	is
+		start_pos number;
+		end_pos   number;
+	begin
+		if the_index = 1 then
+			start_pos := 1;
+		else
+			start_pos := instr(the_list, delim, 1, the_index - 1);
+			if start_pos = 0 then
+				return null;
+			else
+				start_pos := start_pos + length(delim);
+			end if;
+		end if;
+
+		end_pos := instr(the_list, delim, start_pos, 1);
+
+		if end_pos = 0 then
+			return substr(the_list, start_pos);
+		else
+			return substr(the_list, start_pos, end_pos - start_pos);
+		end if;
+
+	end get_token;
+
 	procedure parse_curr_documentation (
 		parser 				in out nocopy 		parse_type
 	)
@@ -295,26 +326,28 @@ as
 
 	begin
 
-		-- Add the schema
-		parser.info.schema_list(parser.info.schema_list.count + 1) := upper(schema);
+		if not docdb_tools.check_if_schema_already_there(parser, schema) then
+			-- Add the schema
+			parser.info.schema_list(parser.info.schema_list.count + 1) := upper(schema);
 
-		-- Add packages
-		if parse_packages then
-			for obj in get_names('PACKAGE') loop
-				parser.info.package_list(parser.info.package_list.count + 1) := parser.info.schema_list(parser.info.schema_list.count) || '.' || obj.object_name;
-			end loop;
-		end if;
+			-- Add packages
+			if parse_packages then
+				for obj in get_names('PACKAGE') loop
+					parser.info.package_list(parser.info.package_list.count + 1) := parser.info.schema_list(parser.info.schema_list.count) || '.' || obj.object_name;
+				end loop;
+			end if;
 
-		if parse_procedures then
-			for obj in get_names('PROCEDURE') loop
-				parser.info.procedure_list(parser.info.procedure_list.count + 1) := parser.info.schema_list(parser.info.schema_list.count) || '.' || obj.object_name;
-			end loop;
-		end if;
+			if parse_procedures then
+				for obj in get_names('PROCEDURE') loop
+					parser.info.procedure_list(parser.info.procedure_list.count + 1) := parser.info.schema_list(parser.info.schema_list.count) || '.' || obj.object_name;
+				end loop;
+			end if;
 
-		if parse_functions then
-			for obj in get_names('FUNCTION') loop
-				parser.info.function_list(parser.info.function_list.count + 1) := parser.info.schema_list(parser.info.schema_list.count) || '.' || obj.object_name;
-			end loop;
+			if parse_functions then
+				for obj in get_names('FUNCTION') loop
+					parser.info.function_list(parser.info.function_list.count + 1) := parser.info.schema_list(parser.info.schema_list.count) || '.' || obj.object_name;
+				end loop;
+			end if;
 		end if;
 
 	end add_schema_to_session;
@@ -330,7 +363,9 @@ as
 
 	begin
 
-		docdb_parse.add_schema_to_session(parser, user, parse_packages, parse_procedures, parse_functions);
+		if not docdb_tools.check_if_schema_already_there(parser, user) then
+			docdb_parse.add_schema_to_session(parser, user, parse_packages, parse_procedures, parse_functions);
+		end if;
 
 	end add_current_schema;
 
@@ -354,6 +389,30 @@ as
 		end if;
 
 	end add_package;
+
+	procedure add_multiple_schemas (
+		parser 				in out nocopy 		parse_type
+		, schemas 			in 					varchar2
+		, parse_packages	in 					boolean 			default true
+		, parse_procedures 	in 					boolean				default false
+		, parse_functions	in 					boolean				default false
+	)
+
+	as
+
+		element_count		number := (length(schemas) - length(replace(schemas,',',null))) + 1;
+		current_element		varchar2(60);
+
+	begin
+
+		for i in 1..element_count loop
+			current_element := get_token(schemas, i);
+			if current_element is not null then 
+				docdb_parse.add_schema_to_session(parser, current_element, parse_packages, parse_procedures, parse_functions);
+			end if;
+		end loop;
+
+	end add_multiple_schemas;
 
 end docdb_parse;
 /

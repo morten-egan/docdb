@@ -5,6 +5,7 @@ as
 
 	type info_arr is table of varchar2(4000) index by pls_integer;
 	type attr_list is table of boolean index by varchar2(250);
+	type docdb_settings is table of varchar2(4000) index by varchar2(250);
 
 	type program_parameter is record (
 		parameter_name					varchar2(250)
@@ -48,6 +49,7 @@ as
 		, package_list					info_arr
 		, procedure_list				info_arr
 		, function_list					info_arr
+		, settings 						docdb_settings
 		, documentation_block_start		number
 		, documentation_block_end		number
 		, documentation_pkg_block		boolean
@@ -128,6 +130,14 @@ as
 		parser 				in out nocopy		parse_type
 		, package_name		in 					varchar2
 		, package_owner		in 					varchar2 default user
+	);
+
+	procedure add_multiple_schemas (
+		parser 				in out nocopy 		parse_type
+		, schemas 			in 					varchar2
+		, parse_packages	in 					boolean 			default true
+		, parse_procedures 	in 					boolean				default false
+		, parse_functions	in 					boolean				default false
 	);
 
 end docdb_parse;
