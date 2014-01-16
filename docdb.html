@@ -54,84 +54,88 @@
 
 </style>
 
-<script type="text/ng-template" id="docdb-front.html">
-	<div class="row" style="min-height: 100%;">
-	    	<div class="col-md-3" style="min-height: 100%;">
-	    		<div class="row">
-	    			<div class="col-md-12" style="background: #2980b9; color: white;">
-	    				<div class="text-center"><h4>{{packages.docname}} <small>docdb</small></h4></div>
-	    				<div class="text-center">
-	    					<div class="col-md-12">
-								<input class="form-control" placeholder="Search ping documentation" ng-model="query">
-							</div>
-							<div class="col-md-12">
-								<div class="checkbox" style="padding-top: 3px;">
+<script type="text/ng-template" id="docdb-menu.html">
+	<div class="row">
+		<div class="col-md-12" style="background: #2980b9; color: white;">
+			<div class="text-center"><h4>{{packages.docname}} <small>docdb</small></h4></div>
+			<div class="text-center">
+				<div class="col-md-12">
+					<input class="form-control" placeholder="Search ping documentation" ng-model="query">
+				</div>
+				<div class="col-md-12">
+					<div class="checkbox" style="padding-top: 3px;">
+						<label>
+							<input type="checkbox" ng-model="checked" style="position:absolute;top:-9999px;left:-9999px;"> Show attribute filters
+						</label>
+					</div>
+				</div>
+				<div ng-show="checked">
+					<div class="row">
+						<div class="col-md-5">
+							<div class="checkbox">
+								<div style="padding-left: 5px;">
 									<label>
-										<input type="checkbox" ng-model="checked" style="position:absolute;top:-9999px;left:-9999px;"> Show attribute filters
+										<input type="checkbox"> Commit
 									</label>
 								</div>
 							</div>
-							<div ng-show="checked">
-								<div class="row">
-									<div class="col-md-5">
-										<div class="checkbox">
-											<div style="padding-left: 5px;">
-												<label>
-													<input type="checkbox"> Commit
-												</label>
-											</div>
-										</div>
-									</div>
-									<div class="col-md-5">
-										<div class="checkbox">
-											<div style="padding-left: 5px;">
-												<label>
-													<input type="checkbox"> Update
-												</label>
-											</div>
-										</div>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-md-5">
-										<div class="checkbox">
-											<div style="padding-left: 5px;">
-												<label>
-													<input type="checkbox"> Commit
-												</label>
-											</div>
-										</div>
-									</div>
-									<div class="col-md-5">
-										<div class="checkbox">
-											<div style="padding-left: 5px;">
-												<label>
-													<input type="checkbox"> Update
-												</label>
-											</div>
-										</div>
-									</div>
+						</div>
+						<div class="col-md-5">
+							<div class="checkbox">
+								<div style="padding-left: 5px;">
+									<label>
+										<input type="checkbox"> Update
+									</label>
 								</div>
 							</div>
-							<div>
-								&nbsp;
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-5">
+							<div class="checkbox">
+								<div style="padding-left: 5px;">
+									<label>
+										<input type="checkbox"> Commit
+									</label>
+								</div>
 							</div>
 						</div>
-	    			</div>
-	    			<div class="col-md-12" style="background: #343131; color: white; font-size: 12px; min-height: 6000px;">
-	    				<div>
-							&nbsp;
-						</div>
-						<div class="text-center">
-							<p style="padding-left: 15px;"><a href="#" class="homelink">Home</a></p>
-						</div>
-							<div><h3 style="padding-left: 15px; color: #CCFF99;">Packages:<p class="pull-right"><span class="badge pull-right">{{(packages.packagelist|filter:query).length}}</span></p></h3></div>
-							<div ng-repeat="package in packages.packagelist | filter:query">
-							<!-- div ng-repeat="package in packages | filter:query | filter:filterFn" -->
-									<p style="padding-left: 15px;"><a href="#/packages/{{package.id}}" class="menulink">{{package.packageName}}</a></p>
+						<div class="col-md-5">
+							<div class="checkbox">
+								<div style="padding-left: 5px;">
+									<label>
+										<input type="checkbox"> Update
+									</label>
+								</div>
 							</div>
-	    			</div>
-	    		</div>
+						</div>
+					</div>
+				</div>
+				<div>
+					&nbsp;
+				</div>
+			</div>
+		</div>
+		<div class="col-md-12" style="background: #343131; color: white; font-size: 12px; min-height: 6000px;">
+			<div>
+				&nbsp;
+			</div>
+			<div class="text-center">
+				<p style="padding-left: 15px;"><a href="#" class="homelink">Home</a></p>
+			</div>
+				<div><h3 style="padding-left: 15px; color: #CCFF99;">Packages:<p class="pull-right"><span class="badge pull-right">{{(packages.packagelist|filter:query).length}}</span></p></h3></div>
+				<div ng-repeat="package in packages.packagelist | filter:query">
+				<!-- div ng-repeat="package in packages | filter:query | filter:filterFn" -->
+						<p style="padding-left: 15px;"><a href="#/packages/{{package.id}}" class="menulink">{{package.packageName}}</a></p>
+				</div>
+		</div>
+	</div>
+</script>
+
+<script type="text/ng-template" id="docdb-front.html">
+	<div class="row" style="min-height: 100%;">
+	    	<div class="col-md-3" style="min-height: 100%;">
+	    		<div ng-include src="'docdb-menu.html'"></div>
 	    	</div>
 	  		<div class="col-md-8" style="min-height: 100%;">
 	  			<div class="row">
@@ -167,82 +171,7 @@
 <script type="text/ng-template" id="package-detail.html">
 	<div class="row" style="min-height: 100%;">
 	    	<div class="col-md-3" style="min-height: 100%;">
-	    		<div class="row">
-	    			<div class="col-md-12" style="background: #2980b9; color: white;">
-	    			<div id="thetop">&nbsp;</div>
-	    				<div class="text-center"><h4>{{packages.docname}} <small>docdb</small></h4></div>
-	    				<div class="text-center">
-	    					<div class="col-md-12">
-								<input class="form-control" placeholder="Search ping documentation" ng-model="query">
-							</div>
-							<div class="col-md-12">
-								<div class="checkbox" style="padding-top: 3px;">
-									<label>
-										<input type="checkbox" ng-model="checked" style="position:absolute;top:-9999px;left:-9999px;"> Show attribute filters
-									</label>
-								</div>
-							</div>
-							<div ng-show="checked">
-								<div class="row">
-									<div class="col-md-5">
-										<div class="checkbox">
-											<div style="padding-left: 5px;">
-												<label>
-													<input type="checkbox"> Commit
-												</label>
-											</div>
-										</div>
-									</div>
-									<div class="col-md-5">
-										<div class="checkbox">
-											<div style="padding-left: 5px;">
-												<label>
-													<input type="checkbox"> Update
-												</label>
-											</div>
-										</div>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-md-5">
-										<div class="checkbox">
-											<div style="padding-left: 5px;">
-												<label>
-													<input type="checkbox"> Commit
-												</label>
-											</div>
-										</div>
-									</div>
-									<div class="col-md-5">
-										<div class="checkbox">
-											<div style="padding-left: 5px;">
-												<label>
-													<input type="checkbox"> Update
-												</label>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div>
-								&nbsp;
-							</div>
-						</div>
-	    			</div>
-	    			<div class="col-md-12" style="background: #343131; color: white; font-size: 12px; min-height: 6000px;">
-	    				<div>
-							&nbsp;
-						</div>
-						<div class="text-center">
-							<p style="padding-left: 15px;"><a href="#" class="homelink">Home</a></p>
-						</div>
-							<div><h3 style="padding-left: 15px; color: #CCFF99;">Packages:<p class="pull-right"><span class="badge pull-right">{{(packages.packagelist|filter:query).length}}</span></p></h3></div>
-							<div ng-repeat="package in packages.packagelist | filter:query">
-							<!-- div ng-repeat="package in packages | filter:query | filter:filterFn" -->
-									<p style="padding-left: 15px;"><a href="#/packages/{{package.id}}" class="menulink">{{package.packageName}}</a></p>
-							</div>
-	    			</div>
-	    		</div>
+	    		<div ng-include src="'docdb-menu.html'"></div>
 	    	</div>
 	  		<div class="col-md-8" style="min-height: 100%;">
 	  			<div class="row">
@@ -258,6 +187,10 @@
 					</div>
 				</div>
 				<div class="row">
+					<!-- div id="sidemenu" style="position:fixed;background:#2980b9; color: white;border:1px solid #343131;width:150px;z-index:100; top: 30px; right: 20px;">
+	    				<div class="text-center">{{packages.docname}}</div>
+	    				<div class="text-right"><a style="color: white; text-decoration: none;"href="#/packages/{{packageId}}#thetop" target="_self">back to top</a></div>
+	    			</div -->
 					<div ng-repeat="package in packages.packagelist">
 						<div ng-if="packageId == package.id">
 							<div class="col-md-12">
