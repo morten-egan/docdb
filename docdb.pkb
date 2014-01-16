@@ -2,9 +2,28 @@ create or replace package body docdb
 
 as
 
+	procedure init_settings (
+		document 				in out nocopy	docdb_parse.parse_type
+		document_settings 		in out nocopy	docdb_settings
+	)
+
+	as
+
+		settings_idx				varchar2(4000);
+
+	begin
+
+		settings_idx := document_settings.first;
+		while settings_idx is not null loop
+			document.info.settings(settings_idx) := document_settings(settings_idx);
+			settings_idx := document_settings.next(settings_idx);
+		end loop;
+
+	end init_settings;
+
 	procedure document_schema (
-		schema_name				in			varchar2
-		, document_settings		in 			docdb_settings default null
+		schema_name				in				varchar2
+		, document_settings		in 				docdb_settings default docdb.no_settings
 	)
 
 	as
@@ -14,9 +33,7 @@ as
 
 	begin
 
-		if document_settings is not null then
-			document.info.settings := document_settings;
-		end if;
+		init_settings(document, document_settings);
 
 		docdb_parse.parse_session_start(document, schema_name, 'A complete documentation of the ' || schema_name || ' user.');
 		if instr(schema_name, ',') > 0 then
@@ -31,7 +48,7 @@ as
 	end document_schema;
 
 	procedure document_current (
-		document_settings		in 			docdb_settings default null
+		document_settings		in 			docdb_settings default docdb.no_settings
 	)
 
 	as
@@ -41,9 +58,7 @@ as
 
 	begin
 
-		if document_settings is not null then
-			document.info.settings := document_settings;
-		end if;
+		init_settings(document, document_settings);
 
 		docdb_parse.parse_session_start(document, user, 'A complete documentation of the ' || user || ' user.');
 		docdb_parse.add_schema_to_session(document, user);
@@ -56,7 +71,7 @@ as
 	procedure document_package (
 		package_name			in			varchar2
 		, schema_name			in			varchar2 default user
-		, document_settings		in 			docdb_settings default null
+		, document_settings		in 			docdb_settings default docdb.no_settings
 	)
 
 	as
@@ -66,9 +81,7 @@ as
 
 	begin
 
-		if document_settings is not null then
-			document.info.settings := document_settings;
-		end if;
+		init_settings(document, document_settings);
 
 		docdb_parse.parse_session_start(document, schema_name || '.' || package_name, 'Documentation of the package: ' || schema_name || '.' || package_name);
 		docdb_parse.add_package(document, package_name, schema_name);
