@@ -29,7 +29,14 @@ Usage:
 
 You can create documentation in a couple of different ways. Below are some examples of the most common usages:
 
-*Create documentation of the currently connected user:*
+*Create documentation of a single package:*
+
+	begin
+		docdb.document_package(package_name => 'A_PKG_NAME');
+	end;
+	/
+
+*Create documentation of all the packages of the currently connected user:*
 
 	begin
 		docdb.document_current;
