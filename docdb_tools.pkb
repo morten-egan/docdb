@@ -465,33 +465,33 @@ as
 			if c_position = 0 and parser.current_data.progr.is_function then
 				parser.current_data.progr.return_type := c_data_type;
 			else
-				parser.counters.parameter_counter := parser.counters.parameter_counter + 1;
-				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_name := c_argument_name;
-				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_position := c_position;
-				parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_type := c_data_type;
-				if c_in_out = 'IN/OUT' then
-					parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_out := true;
-					parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_in := true;
-				elsif c_in_out = 'IN' then
-					parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_in := true;
-					parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_out := false;
-				elsif c_in_out = 'OUT' then
-					parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_out := true;
-					parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_in := false;
-				end if;
-				-- Default value defined here.
-				if c_default_value is not null then
-					parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_default_value := c_default_value;
-				end if;
-				-- In here we need to check if we already have a description of the parameter and if we do loop and grab description
-				if parser.current_data.params.count > 0 then
-					for docced_parms in 1..parser.current_data.params.count loop
-						dbms_output.put_line('Compare:' || upper(parser.current_data.params(docced_parms).parameter_name) || ' to:' || upper(c_argument_name));
-						if upper(c_argument_name) = upper(parser.current_data.params(docced_parms).parameter_name) then
-							dbms_output.put_line('Setting desc');
-							parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_description := parser.current_data.params(docced_parms).parameter_description;
-						end if;
-					end loop;
+				if c_argument_name is not null then
+					parser.counters.parameter_counter := parser.counters.parameter_counter + 1;
+					parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_name := c_argument_name;
+					parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_position := c_position;
+					parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_type := c_data_type;
+					if c_in_out = 'IN/OUT' then
+						parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_out := true;
+						parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_in := true;
+					elsif c_in_out = 'IN' then
+						parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_in := true;
+						parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_out := false;
+					elsif c_in_out = 'OUT' then
+						parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_out := true;
+						parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_in := false;
+					end if;
+					-- Default value defined here.
+					if c_default_value is not null then
+						parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_default_value := c_default_value;
+					end if;
+					-- In here we need to check if we already have a description of the parameter and if we do loop and grab description
+					if parser.current_data.params.count > 0 then
+						for docced_parms in 1..parser.current_data.params.count loop
+							if upper(c_argument_name) = upper(parser.current_data.params(docced_parms).parameter_name) then
+								parser.current_data.progr.parameters(parser.counters.parameter_counter).parameter_description := parser.current_data.params(docced_parms).parameter_description;
+							end if;
+						end loop;
+					end if;
 				end if;
 			end if;
 		end loop;

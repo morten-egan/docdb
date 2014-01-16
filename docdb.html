@@ -126,7 +126,7 @@
 				<div><h3 style="padding-left: 15px; color: #CCFF99;">Packages:<p class="pull-right"><span class="badge pull-right">{{(packages.packagelist|filter:query).length}}</span></p></h3></div>
 				<div ng-repeat="package in packages.packagelist | filter:query">
 				<!-- div ng-repeat="package in packages | filter:query | filter:filterFn" -->
-						<p style="padding-left: 15px;"><a href="#/packages/{{package.id}}" class="menulink">{{package.packageName}}</a></p>
+						<p style="padding-left: 15px;"><a href="#/packages/{{package.id}}" class="menulink" ng-class="{ 'selected': package.id == packageId }">{{package.packageName}}</a></p>
 				</div>
 		</div>
 	</div>
@@ -174,6 +174,7 @@
 	    		<div ng-include src="'docdb-menu.html'"></div>
 	    	</div>
 	  		<div class="col-md-8" style="min-height: 100%;">
+	  			<div id="thetop">&nbsp;</div>
 	  			<div class="row">
 		 			<div class="col-md-6">
 		 				<p style="padding: 10px; font-size: 90%;">
