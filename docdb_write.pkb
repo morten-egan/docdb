@@ -387,6 +387,7 @@ as
         cp('main', false);
         cp('packages');
         cp('programs');
+        cp('parameters');
         cp('attributes');
 
         -- Lets loop through packages

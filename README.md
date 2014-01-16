@@ -55,7 +55,7 @@ You can create documentation in a couple of different ways. Below are some examp
 	declare
 		settings	docdb.docdb_settings;
 	begin
-		settings('out_default_val', 'YOUR_DIRECTORY_NAME');
+		settings('out_default_val') := 'YOUR_DIRECTORY_NAME';
 		docdb.document_current(document_settings => settings);
 	end;
 	/
