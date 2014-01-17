@@ -199,7 +199,7 @@
 	    				<div class="text-center">{{packages.docname}}</div>
 	    				<div class="text-right"><a style="color: white; text-decoration: none;"href="#/packages/{{packageId}}#thetop" target="_self">back to top</a></div>
 	    			</div -->
-					<div ng-repeat="package in packages.packagelist">
+					<div ng-repeat="package in packages.packagelist | filter:query">
 						<div ng-if="packageId == package.id">
 							<div class="col-md-12">
 								<div class="page-header">
