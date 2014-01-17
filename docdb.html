@@ -3,7 +3,7 @@
 <head>
 
 <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
-<title>ANGULAR TEST</title>
+<title>DOCDB</title>
 
 <style>
 
@@ -61,9 +61,9 @@
 			<div class="text-center">
 				<div class="col-md-12">
 					<div class="input-group">
-      					<input type="text" id="queryinput" class="form-control" placeholder="Search ping documentation" ng-model="query" ng-keyup="qChange($event)" ng-value="docdbQueryFac.queryObject">
+      					<input type="text" id="queryinput" class="form-control input-sm" placeholder="Search ping documentation" ng-model="query" ng-keyup="qChange($event)" ng-value="docdbQueryFac.queryObject">
       					<span class="input-group-btn">
-        					<button class="btn btn-default" type="button" ng-click="queryClear()">
+        					<button class="btn btn-default btn-sm" type="button" ng-click="queryClear()">
         						<i class="glyphicon glyphicon-remove-circle"></i>
         					</button>
 						</span>
@@ -255,8 +255,8 @@
 
 	  							<!-- All programs details -->
 	  							<div ng-repeat="program in package.programs">
-	  								<div class="page-header" id="{{program.programName}}">
-	  									<h4><strong>{{program.programName}}</strong><small> <a href="#/packages/{{packageId}}#thetop" target="_self">back to top</a></small></h4>
+	  								<div class="page-header" id="{{program.programName}}" >
+	  									<h4 style="background-color: #F1F1BD; padding: 3px;"><strong>{{program.programName}}</strong><span class="pull-right"><small> <a href="#/packages/{{packageId}}#thetop" target="_self">back to top</a></small></span></h4>
 	  									<h5><small>{{program.programType}} in package {{package.packageName}}<small></h5>
 	  									<h6>
 	  										<span ng-repeat="attrib in program.programAttributes" class="label label-info attrib">{{attrib.attribName}}</span>
