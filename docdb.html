@@ -60,7 +60,14 @@
 			<div class="text-center"><h4>{{packages.docname}} <small>docdb</small></h4></div>
 			<div class="text-center">
 				<div class="col-md-12">
-					<input class="form-control" placeholder="Search ping documentation" ng-model="query">
+					<div class="input-group">
+      					<input type="text" id="queryinput" class="form-control" placeholder="Search ping documentation" ng-model="query" ng-keyup="qChange($event)" ng-value="docdbQueryFac.queryObject">
+      					<span class="input-group-btn">
+        					<button class="btn btn-default" type="button" ng-click="queryClear()">
+        						<i class="glyphicon glyphicon-remove-circle"></i>
+        					</button>
+						</span>
+					</div>
 				</div>
 				<div class="col-md-12">
 					<div class="checkbox" style="padding-top: 3px;">

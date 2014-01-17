@@ -1,7 +1,24 @@
-docdbControllers.controller('PackageDetailCtrl', ['$scope', '$routeParams', 'docdbDataFac',
-  function($scope, $routeParams, docdbDataFac) {
+docdbControllers.factory("docdbQueryFac", function(){
+    return { queryObject: "" }
+});
+
+docdbControllers.controller('PackageDetailCtrl', ['$scope', '$routeParams', 'docdbDataFac', 'docdbQueryFac',
+  function($scope, $routeParams, docdbDataFac, docdbQueryFac) {
     $scope.packageId = $routeParams.packageId;
     $scope.packages = docdbDataFac.sharedObject;
+
+    $scope.query = docdbQueryFac.queryObject;
+
+    $scope.qChange = function($event) {
+        docdbQueryFac.queryObject = $event.srcElement.value;
+    };
+
+    $scope.queryClear = function() {
+        docdbQueryFac.queryObject = "";
+        elem = document.querySelector('#queryinput');
+        elem.value = docdbQueryFac.queryObject;
+        $scope.query = docdbQueryFac.queryObject;
+    };
 
     $scope.proc_count = 0;
     $scope.func_count = 0;
@@ -19,7 +36,20 @@ docdbControllers.controller('PackageDetailCtrl', ['$scope', '$routeParams', 'doc
     };
   }]);
 
-docdbControllers.controller('PackageListCtrl', ['$scope', 'docdbDataFac', 
-	function ($scope, docdbDataFac) {
+docdbControllers.controller('PackageListCtrl', ['$scope', 'docdbDataFac', 'docdbQueryFac',
+	function ($scope, docdbDataFac, docdbQueryFac) {
   		$scope.packages = docdbDataFac.sharedObject;
+
+        $scope.query = docdbQueryFac.queryObject;
+
+        $scope.qChange = function($event) {
+            docdbQueryFac.queryObject = $event.srcElement.value;
+        };
+
+        $scope.queryClear = function() {
+            docdbQueryFac.queryObject = "";
+            elem = document.querySelector('#queryinput');
+            elem.value = docdbQueryFac.queryObject;
+            $scope.query = docdbQueryFac.queryObject;
+        };
 	}]);
