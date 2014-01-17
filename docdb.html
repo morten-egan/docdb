@@ -214,7 +214,7 @@
 			    								<h3 class="panel-title">Procedure summary:</h3>
 			  								</div>
 			  								<div class="panel-body">
-			  									<div ng-repeat="program in package.programs | filter:query">
+			  									<div ng-repeat="program in package.programs">
 			  										<div ng-if="program.programType == 'PROCEDURE'">
 												    	<code style="white-space: normal;"><span class="codeName"><a href="#/packages/{{packageId}}#{{program.programName}}" target="_self">{{program.programName}}</a></span>(
 												    	<span ng-repeat="parameter in program.programParameters">
@@ -237,7 +237,7 @@
 			    								<h3 class="panel-title">Function summary:</h3>
 			  								</div>
 			  								<div class="panel-body">
-			  									<div ng-repeat="program in package.programs | filter:query">
+			  									<div ng-repeat="program in package.programs">
 			  										<div ng-if="program.programType == 'FUNCTION'">
 												    	<code style="white-space: normal;"><span class="codeName"><a href="#/packages/{{packageId}}#{{program.programName}}" target="_self">{{program.programName}}</a></span>(
 												    	<span ng-repeat="parameter in program.programParameters">
@@ -254,7 +254,7 @@
 	  							</div>
 
 	  							<!-- All programs details -->
-	  							<div ng-repeat="program in package.programs | filter:query">
+	  							<div ng-repeat="program in package.programs">
 	  								<div class="page-header" id="{{program.programName}}" >
 	  									<h4 style="background-color: #F1F1BD; padding: 3px;"><strong>{{program.programName}}</strong><span class="pull-right"><small> <a href="#/packages/{{packageId}}#thetop" target="_self">back to top</a></small></span></h4>
 	  									<h5><small>{{program.programType}} in package {{package.packageName}}<small></h5>
