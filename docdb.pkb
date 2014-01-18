@@ -4,7 +4,7 @@ as
 
 	procedure init_settings (
 		document 				in out nocopy	docdb_parse.parse_type
-		document_settings 		in out nocopy	docdb_settings
+		, document_settings 	in docdb_settings
 	)
 
 	as

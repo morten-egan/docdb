@@ -80,7 +80,7 @@ as
 		, program_counter				number
 		, parameter_counter				number
 		, program_attr_counter			number
-		, dependents_counter			number;
+		, dependents_counter			number
 	);
 
 	type parse_current is record (

@@ -256,9 +256,9 @@ as
 		parser.info.doc_written := false;
 		parser.info.program_spec_met := false;
 		-- Statistics
-		parser.current_data.progr.stats.lines_of_code := 0;
-        parser.current_data.progr.stats.comment_lines := 0;
-        parser.current_data.progr.stats.dml_lines := 0;
+		parser.current_data.progr.line_type_counts.lines_of_code := 0;
+        parser.current_data.progr.line_type_counts.comment_lines := 0;
+        parser.current_data.progr.line_type_counts.dml_lines := 0;
 
 	end parse_session_start;
 

@@ -530,7 +530,7 @@ as
 		c_type_subname		all_arguments.type_subname%type;
 		c_type_link			all_arguments.type_link%type;
 		c_dep_cursor 		sys_refcursor;
-		c_dep_cursor_typ	all_arguments%rowtype;
+		c_dep_cursor_typ	all_dependencies%rowtype;
 
 	begin
 
