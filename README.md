@@ -6,9 +6,9 @@ Project docdb readme file
 Installation instructions:
 ----------------------
 
-First of download docdb_release.zip. This is always the newest version available:
+First of download the latest release zip file. This is available from the release page of the project:
 
-[LATEST DOCDB_RELEASE.ZIP](docdb_release.zip?raw=true)
+[LATEST DOCDB_RELEASE.ZIP](https://github.com/morten-egan/docdb/releases)
 
 Extract the zip to a seperate location on the server.
 
