@@ -345,6 +345,82 @@ as
 
 	end get_program_source_ref;
 
+	function get_dependents_ref (
+		parser 				in out nocopy 		docdb_parse.parse_type
+	)
+	return sys_refcursor
+
+	as
+
+		dependents_cursor 	sys_refcursor;
+
+	begin
+
+		if parser.current_data.package_name is not null then
+			open dependents_cursor for 
+				select
+					*
+				from
+					all_dependencies
+				where
+					owner = parser.current_data.owner
+				and
+					name = parser.current_data.package_name
+				and
+					type = 'PACKAGE BODY'
+				and
+					referenced_owner = owner
+				and
+					referenced_type != 'NON-EXISTENT'
+				order by
+					referenced_type
+					, referenced_owner;
+		else
+			if parser.current_data.is_function then
+				open dependents_cursor for 
+					select
+						*
+					from
+						all_dependencies
+					where
+						owner = parser.current_data.owner
+					and
+						name = parser.current_data.program_name
+					and
+						type = 'FUNCTION'
+					and
+						referenced_owner = owner
+					and
+						referenced_type != 'NON-EXISTENT'
+					order by
+						referenced_type
+						, referenced_owner;
+			else
+				open dependents_cursor for 
+					select
+						*
+					from
+						all_dependencies
+					where
+						owner = parser.current_data.owner
+					and
+						name = parser.current_data.program_name
+					and
+						type = 'PROCEDURE'
+					and
+						referenced_owner = owner
+					and
+						referenced_type != 'NON-EXISTENT'
+					order by
+						referenced_type
+						, referenced_owner;
+			end if;
+		end if;
+
+		return dependents_cursor;
+
+	end get_dependents_ref;
+
 	procedure parse_program_attributes (
 		parser 				in out nocopy 		docdb_parse.parse_type
 	)
@@ -365,6 +441,13 @@ as
 
 		find_program_boundary(parser);
 
+		-- Here we can set lines of code count
+		if parser.current_data.package_name is null then
+			parser.current_data.progr.line_type_counts.lines_of_code := parser.current_data.lines.count;
+		else
+			parser.current_data.progr.line_type_counts.lines_of_code := parser.info.program_boundary_end - parser.info.program_boundary_start;
+		end if;
+
 		source_cursor := get_program_source_ref(parser);
 		loop
 			fetch source_cursor
@@ -377,32 +460,39 @@ as
 			fixed_line := upper(fixed_line);
 			if substr(fixed_line, 1, 2) = '/*' then
 				in_comment := true;
+				parser.current_data.progr.line_type_counts.comment_lines := parser.current_data.progr.line_type_counts.comment_lines + 1;
 			elsif in_comment then
+				parser.current_data.progr.line_type_counts.comment_lines := parser.current_data.progr.line_type_counts.comment_lines + 1;
 				if substr(fixed_line, -1, 2) = '*/' then
 					in_comment := false;
 				end if;
 			elsif substr(fixed_line, 1, 2) = '--' then
-				--ignore single line comments
-				null;
+				--ignore single line comments, but remember to count
+				parser.current_data.progr.line_type_counts.comment_lines := parser.current_data.progr.line_type_counts.comment_lines + 1;
 			else
 				-- Check line for atributes
 				if instr(fixed_line, 'INSERT ') > 0 then
 					parser.current_data.progr.attributes('Insert') := true;
+					parser.current_data.progr.line_type_counts.dml_lines := parser.current_data.progr.line_type_counts.dml_lines + 1;
 				end if;
 				if instr(fixed_line, 'UPDATE ') > 0 then
 					parser.current_data.progr.attributes('Update') := true;
+					parser.current_data.progr.line_type_counts.dml_lines := parser.current_data.progr.line_type_counts.dml_lines + 1;
 				end if;
 				if instr(fixed_line, 'DELETE ') > 0 then
 					parser.current_data.progr.attributes('Delete') := true;
+					parser.current_data.progr.line_type_counts.dml_lines := parser.current_data.progr.line_type_counts.dml_lines + 1;
 				end if;
 				if instr(fixed_line, 'EXECUTE IMMEDIATE') > 0 then
 					parser.current_data.progr.attributes('Dynamic SQL') := true;
 				end if;
 				if instr(fixed_line, 'COMMIT;') > 0 then
 					parser.current_data.progr.attributes('Commit') := true;
+					parser.current_data.progr.line_type_counts.transaction_lines := parser.current_data.progr.line_type_counts.dml_lines + 1;
 				end if;
 				if instr(fixed_line, 'ROLLBACK;') > 0 then
 					parser.current_data.progr.attributes('Rollback') := true;
+					parser.current_data.progr.line_type_counts.transaction_lines := parser.current_data.progr.line_type_counts.dml_lines + 1;
 				end if;
 				if instr(fixed_line, 'DBMS_APPLICATION_INFO.SET;') > 0 then
 					no_instrumentation := false;
@@ -439,6 +529,8 @@ as
 		c_type_name 		all_arguments.type_name%type;
 		c_type_subname		all_arguments.type_subname%type;
 		c_type_link			all_arguments.type_link%type;
+		c_dep_cursor 		sys_refcursor;
+		c_dep_cursor_typ	all_arguments%rowtype;
 
 	begin
 
@@ -499,6 +591,20 @@ as
 		-- Analyze body for attributes
 		parse_program_attributes(parser);
 
+		-- Get local dependencies
+		c_dep_cursor := get_dependents_ref(parser);
+		loop
+			fetch c_dep_cursor
+			into c_dep_cursor_typ;
+
+			exit when c_dep_cursor%notfound;
+
+			parser.counters.dependents_counter := parser.counters.dependents_counter + 1;
+			parser.current_data.dependents(parser.counters.dependents_counter).d_owner := c_dep_cursor_typ.referenced_owner;
+			parser.current_data.dependents(parser.counters.dependents_counter).d_name := c_dep_cursor_typ.referenced_name;
+			parser.current_data.dependents(parser.counters.dependents_counter).d_type := c_dep_cursor_typ.referenced_type;
+		end loop;
+
 	end parse_program_dictionary;
 
 	procedure reset_current_parse (
@@ -521,6 +627,7 @@ as
         parser.current_data.throws := null;
         parser.current_data.project := null;
         parser.current_data.params.delete;
+        parser.current_data.dependents.delete;
         parser.current_data.progr.program_name := null;
         parser.current_data.progr.is_procedure := null;
         parser.current_data.progr.is_function := null;
@@ -531,6 +638,9 @@ as
         parser.current_data.progr.throws := null;
         parser.current_data.progr.parameters.delete;
         parser.current_data.progr.attributes.delete;
+        parser.current_data.progr.line_type_counts.lines_of_code := 0;
+        parser.current_data.progr.line_type_counts.comment_lines := 0;
+        parser.current_data.progr.line_type_counts.dml_lines := 0;
         parser.info.documentation_pkg_block := false;
         parser.info.program_spec_met := false;
         parser.info.documentation_block_start := null;

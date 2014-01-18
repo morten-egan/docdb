@@ -18,6 +18,20 @@ as
 	);
 	type program_parameter_list is table of program_parameter index by pls_integer;
 
+	type dependency is record (
+		d_owner 						varchar2(60)
+		, d_name						varchar2(4000)
+		, d_type						varchar2(100)
+	);
+	type dependency_list is table of dependency index by pls_integer;
+
+	type line_types is record (
+		lines_of_code					number
+		, comment_lines					number
+		, dml_lines						number
+		, transaction_lines				number
+	);
+
 	type program is record (
 		program_name					varchar2(250)
 		, program_owner					varchar2(250)
@@ -30,6 +44,8 @@ as
 		, return_type					varchar2(4000)
 		, parameters 					program_parameter_list
 		, attributes					attr_list
+		, dependents 					dependency_list
+		, line_type_counts				line_types
 	);
 	type program_list is table of program index by pls_integer;
 
@@ -64,6 +80,7 @@ as
 		, program_counter				number
 		, parameter_counter				number
 		, program_attr_counter			number
+		, dependents_counter			number;
 	);
 
 	type parse_current is record (
@@ -81,6 +98,7 @@ as
 		, project						varchar2(4000)
 		, progr 						program
 		, params 						program_parameter_list
+		, dependents 					dependency_list
 	);
 
 	type parse_type is record (

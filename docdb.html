@@ -63,7 +63,7 @@
 					<div class="input-group">
       					<input type="text" id="queryinput" class="form-control input-sm" placeholder="Search ping documentation" ng-model="query" ng-keyup="qChange($event)" ng-value="docdbQueryFac.queryObject">
       					<span class="input-group-btn">
-        					<button class="btn btn-default btn-sm" type="button" ng-click="queryClear()">
+        					<button class="btn btn-default btn-sm" type="button" ng-click="queryClear($event)">
         						<i class="glyphicon glyphicon-remove-circle"></i>
         					</button>
 						</span>
@@ -132,7 +132,6 @@
 			</div>
 				<div><h3 style="padding-left: 15px; color: #CCFF99;">Packages:<p class="pull-right"><span class="badge pull-right">{{(packages.packagelist|filter:query).length}}</span></p></h3></div>
 				<div ng-repeat="package in packages.packagelist | filter:query">
-				<!-- div ng-repeat="package in packages | filter:query | filter:filterFn" -->
 						<p style="padding-left: 15px;"><a href="#/packages/{{package.id}}" class="menulink" ng-class="{ 'selected': package.id == packageId }">{{package.packageName}}</a></p>
 				</div>
 		</div>
@@ -158,15 +157,33 @@
 					</div>
 				</div>
 				<div class="row">
-						<div class="col-sm-6 col-md-4" ng-repeat="package in packages.packagelist | filter:query">
-							<div class="thumbnail">
-								<img src="http://placehold.it/300x200" alt="...">
-									<div class="caption">
-										<h4>{{package.packageName}}</h4>
-										<h5><small>{{package.author}}</small></h5>
-										<h5>{{package.project}}</h5>
-										<p><h5><small>{{package.description}}</small></h5></p>
-										<p><a href="#/packages/{{package.id}}" class="btn btn-primary" role="button">Details</a></p>
+						<div ng-repeat="package in packages.packagelist | filter:query">
+							<div ng-if="$index%2==0">
+									<div class="col-md-6">
+										<div class="thumbnail">
+											<img src="http://placehold.it/300x200&text=ThisTest" alt="...">
+											<div class="caption">
+												<h4>{{package.packageName}}</h4>
+												<h5><small>{{package.author}}</small></h5>
+												<h5>{{package.project}}</h5>
+												<p><h5><small>{{package.description}}</small></h5></p>
+												<p><a href="#/packages/{{package.id}}" class="btn btn-primary" role="button">Details</a></p>
+											</div>
+										</div>
+									</div>
+							</div>
+							<div ng-if="$index%2!=0">
+									<div class="col-md-6">
+										<div class="thumbnail">
+											<img src="http://placehold.it/300x200&text=ThisTest" alt="...">
+											<div class="caption">
+												<h4>{{package.packageName}}</h4>
+												<h5><small>{{package.author}}</small></h5>
+												<h5>{{package.project}}</h5>
+												<p><h5><small>{{package.description}}</small></h5></p>
+												<p><a href="#/packages/{{package.id}}" class="btn btn-primary" role="button">Details</a></p>
+											</div>
+										</div>
 									</div>
 							</div>
 						</div>
@@ -214,7 +231,7 @@
 			    								<h3 class="panel-title">Procedure summary:</h3>
 			  								</div>
 			  								<div class="panel-body">
-			  									<div ng-repeat="program in package.programs">
+			  									<div ng-repeat="program in package.programs | filter:query">
 			  										<div ng-if="program.programType == 'PROCEDURE'">
 												    	<code style="white-space: normal;"><span class="codeName"><a href="#/packages/{{packageId}}#{{program.programName}}" target="_self">{{program.programName}}</a></span>(
 												    	<span ng-repeat="parameter in program.programParameters">
@@ -237,7 +254,7 @@
 			    								<h3 class="panel-title">Function summary:</h3>
 			  								</div>
 			  								<div class="panel-body">
-			  									<div ng-repeat="program in package.programs">
+			  									<div ng-repeat="program in package.programs | filter:query">
 			  										<div ng-if="program.programType == 'FUNCTION'">
 												    	<code style="white-space: normal;"><span class="codeName"><a href="#/packages/{{packageId}}#{{program.programName}}" target="_self">{{program.programName}}</a></span>(
 												    	<span ng-repeat="parameter in program.programParameters">
@@ -254,7 +271,7 @@
 	  							</div>
 
 	  							<!-- All programs details -->
-	  							<div ng-repeat="program in package.programs">
+	  							<div ng-repeat="program in package.programs | filter:query">
 	  								<div class="page-header" id="{{program.programName}}" >
 	  									<h4 style="background-color: #F1F1BD; padding: 3px;"><strong>{{program.programName}}</strong><span class="pull-right"><small> <a href="#/packages/{{packageId}}#thetop" target="_self">back to top</a></small></span></h4>
 	  									<h5><small>{{program.programType}} in package {{package.packageName}}<small></h5>

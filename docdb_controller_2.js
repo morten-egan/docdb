@@ -21,6 +21,7 @@ docdbControllers.controller('PackageDetailCtrl', ['$scope', '$routeParams', 'doc
         elem = document.querySelector('#queryinput');
         elem.value = docdbQueryFac.queryObject;
         $scope.query = docdbQueryFac.queryObject;
+        document.querySelector('#queryinput').focus();
     };
 
     $scope.proc_count = 0;
@@ -52,10 +53,11 @@ docdbControllers.controller('PackageListCtrl', ['$scope', 'docdbDataFac', 'docdb
             $scope.query = docdbQueryFac.queryObject;
         };
 
-        $scope.queryClear = function() {
+        $scope.queryClear = function($event) {
             docdbQueryFac.queryObject = "";
             elem = document.querySelector('#queryinput');
             elem.value = docdbQueryFac.queryObject;
             $scope.query = docdbQueryFac.queryObject;
+            // document.querySelector('#queryinput').focus();
         };
 	}]);
