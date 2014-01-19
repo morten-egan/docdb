@@ -1,7 +1,8 @@
 Project docdb readme file
 ==================================
 
-* Package to generate plsql documentation
+* Package to generate plsql documentation.
+* For more information please got to [docdb's homepage](http://morten-egan.github.io/docdb)
 
 Installation instructions:
 ----------------------
