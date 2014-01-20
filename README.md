@@ -23,7 +23,7 @@ To do the installation, start sqlplus and login as the schema that should own th
 
 At the sqlplus prompt run the following:
 
-	@[location_of_docdb_files]/install.sql
+	@[location_of_docdb_files]/oracle/install.sql
 
 Usage:
 --------------------
@@ -71,11 +71,10 @@ You can create documentation in a couple of different ways. Below are some examp
 Looking at the result:
 ----------------------------
 
-To see the documentation, take the file generated in the output directory (docdb_controller_data.js) and place it alongside the html and js files in the zip file. To work, it needs the following files:
+To see the documentation, take the file generated in the output directory (docdb_controller_data.js) and place it alongside the js files in the zip file. To work, it needs the following files:
 
-* docdb.html
 * docdb_controller.js
 * docdb_controller_2.js
 * angular_app.js
 
-Place docdb_controller_data.js in the same location, and open docdb.html in your browser.
+Place docdb_controller_data.js in the same location [unzipped location]/js, and open docdb.html in your browser.
