@@ -389,6 +389,7 @@ as
         cp('programs');
         cp('parameters');
         cp('attributes');
+        cp('linecounts');
 
         -- Lets loop through packages
         pkg_idx := parser.packages.first;
@@ -432,6 +433,15 @@ as
                 end loop;
                 aetp(null, 'parameters', null, '[]');
 
+                -- Create the linecount record
+                tp('linecounts', '
+                    "totalCodeLines": '|| parser.packages(pkg_idx).programs(prg_idx).line_type_counts.lines_of_code || ',
+                    "totalCommentLines": '|| parser.packages(pkg_idx).programs(prg_idx).line_type_counts.comment_lines || ',
+                    "totalDmlLines": '|| parser.packages(pkg_idx).programs(prg_idx).line_type_counts.dml_lines || ',
+                    "totalTransactionLines": '|| parser.packages(pkg_idx).programs(prg_idx).line_type_counts.transaction_lines || '
+                ');
+                aetp(null, 'linecounts', null, '{}');
+
                 -- Create the individual program record
                 tp('programs', '
                     "id": "'|| prg_idx ||'",
@@ -442,7 +452,8 @@ as
                     "programReturn": "' || parser.packages(pkg_idx).programs(prg_idx).return_description || '",
                     "programReturnType": "' || parser.packages(pkg_idx).programs(prg_idx).return_type || '",
                     "programParameters": '|| docdb_pieces('parameters') || ',
-                    "programAttributes": '|| docdb_pieces('attributes') || '
+                    "programAttributes": '|| docdb_pieces('attributes') || ',
+                    "programLineCounts": '|| docdb_pieces('linecounts') || '
                 ', true);
                 aetp(null, 'programs_temp', null, '{}');
                 aetp('programs_temp', 'programs');

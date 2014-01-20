@@ -444,8 +444,6 @@ as
 		-- Here we can set lines of code count
 		if parser.current_data.package_name is null then
 			parser.current_data.progr.line_type_counts.lines_of_code := parser.current_data.lines.count;
-		else
-			parser.current_data.progr.line_type_counts.lines_of_code := parser.info.program_boundary_end - parser.info.program_boundary_start;
 		end if;
 
 		source_cursor := get_program_source_ref(parser);
@@ -454,6 +452,10 @@ as
 			into source_line;
 
 			exit when source_cursor%notfound;
+
+			if parser.current_data.package_name is not null then
+				parser.current_data.progr.line_type_counts.lines_of_code := parser.current_data.progr.line_type_counts.lines_of_code + 1;
+			end if;
 			-- Start the analyze
 			fixed_line := trim(source_line);
 			fixed_line := ltrim(fixed_line, chr(9));
@@ -641,6 +643,7 @@ as
         parser.current_data.progr.line_type_counts.lines_of_code := 0;
         parser.current_data.progr.line_type_counts.comment_lines := 0;
         parser.current_data.progr.line_type_counts.dml_lines := 0;
+        parser.current_data.progr.line_type_counts.transaction_lines := 0;
         parser.info.documentation_pkg_block := false;
         parser.info.program_spec_met := false;
         parser.info.documentation_block_start := null;
