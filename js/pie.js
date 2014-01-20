@@ -42,15 +42,3 @@ Raphael.fn.pieChart = function (cx, cy, r, values, labels, stroke) {
     }
     return chart;
 };
-
-function dopie(idin) {
-    alert("called with" + idin)
-    var values = [],
-        labels = [];
-    $("#tab_" + idin + " tr").each(function () {
-        values.push(parseInt($("td", this).text(), 10));
-        labels.push($("th", this).text());
-    });
-    // $("table").hide();
-    Raphael("pholder_" + idin, "90%", "70%").pieChart(150, 100, 60, values, labels, "#fff");
-};
