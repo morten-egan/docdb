@@ -60,4 +60,18 @@ docdbControllers.controller('PackageListCtrl', ['$scope', 'docdbDataFac', 'docdb
             $scope.query = docdbQueryFac.queryObject;
             // document.querySelector('#queryinput').focus();
         };
+
+        $scope.dopie = function() {
+            var values = [],
+            labels = [];
+            for (var i = 0; i < $scope.packages.packagelist.length; i++) {
+                console.log("called with " + i);
+                $("#tab_" + i + " tr").each(function () {
+                    values.push(parseInt($("td", this).text(), 10));
+                    labels.push($("th", this).text());
+                });
+                // $("table").hide();
+                Raphael("pholder_" + i, "90%", "70%").pieChart(150, 100, 60, values, labels, "#fff");
+            }
+        };
 	}]);

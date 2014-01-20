@@ -163,7 +163,7 @@
 										<div class="thumbnail">
 											<!-- img src="http://placehold.it/400x200&text=Even" alt="..." -->
 											<div class="hidden">
-												<table>
+												<table id="tab_{{$index}}">
             										<tbody>
             										    <tr>
             										        <th scope="row">Ruby</th>
@@ -208,7 +208,7 @@
             										</tbody>
         										</table>
         									</div>
-											<div id="holder">
+											<div id="pholder_{{$index}}">
 											</div>
 											<div class="caption">
 												<h4>{{package.packageName}}</h4>
@@ -235,6 +235,8 @@
 									</div>
 							</div>
 						</div>
+					<div data-ng-init="dopie()">
+					</div>
 				</div>
 	  		</div>
 	    </div>
@@ -367,6 +369,7 @@
 	    </div>
 </script>
 
+<script src="js/jquery-2.0.3.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular-route.js"></script>
 <script src="js/raphael-min.js"></script>
