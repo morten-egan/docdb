@@ -2,16 +2,18 @@ docdbControllers.factory("docdbQueryFac", function(){
     return { queryObject: "" }
 });
 
-docdbControllers.controller('PackageDetailCtrl', ['$scope', '$routeParams', 'docdbDataFac', 'docdbQueryFac',
-  function($scope, $routeParams, docdbDataFac, docdbQueryFac) {
+docdbControllers.controller('PackageDetailCtrl', ['$scope', '$routeParams', '$anchorScroll','docdbDataFac', 'docdbQueryFac',
+  function($scope, $routeParams, $anchorScroll, docdbDataFac, docdbQueryFac) {
+  	$anchorScroll();
     $scope.packageId = $routeParams.packageId;
     $scope.packages = docdbDataFac.sharedObject;
 
     $scope.query = docdbQueryFac.queryObject;
 
     $scope.qChange = function($event) {
-        docdbQueryFac.queryObject = $event.srcElement.value;
-        elem = document.querySelector('#queryinput');
+        console.log($event.originalEvent.srcElement.value);
+        docdbQueryFac.queryObject = $event.originalEvent.srcElement.value;
+        elem = $('#queryinput');
         elem.value = docdbQueryFac.queryObject;
         $scope.query = docdbQueryFac.queryObject;
     };
@@ -40,14 +42,15 @@ docdbControllers.controller('PackageDetailCtrl', ['$scope', '$routeParams', 'doc
     };
   }]);
 
-docdbControllers.controller('PackageListCtrl', ['$scope', 'docdbDataFac', 'docdbQueryFac',
-	function ($scope, docdbDataFac, docdbQueryFac) {
+docdbControllers.controller('PackageListCtrl', ['$scope', '$anchorScroll', 'docdbDataFac', 'docdbQueryFac',
+	function ($scope, $anchorScroll, docdbDataFac, docdbQueryFac) {
+		$anchorScroll();
   		$scope.packages = docdbDataFac.sharedObject;
 
         $scope.query = docdbQueryFac.queryObject;
 
         $scope.qChange = function($event) {
-            docdbQueryFac.queryObject = $event.srcElement.value;
+            docdbQueryFac.queryObject = $event.originalEvent.srcElement.value;
             elem = document.querySelector('#queryinput');
             elem.value = docdbQueryFac.queryObject;
             $scope.query = docdbQueryFac.queryObject;
@@ -60,4 +63,20 @@ docdbControllers.controller('PackageListCtrl', ['$scope', 'docdbDataFac', 'docdb
             $scope.query = docdbQueryFac.queryObject;
             // document.querySelector('#queryinput').focus();
         };
+
+        $scope.$on('$includeContentLoaded', function() {
+            for (var i = 0; i < $scope.packages.packagelist.length; i++) {
+                var values = [],
+                labels = [];
+                for (var y = 0; y < $scope.packages.packagelist[i].programs.length; y++) {
+                    values.push(20);
+                    labels.push($scope.packages.packagelist[i].programs[y].programName);
+                }
+                if (y == 1) {
+                    values.push(35);
+                    labels.push('Other')
+                }
+                Raphael("pholder_" + i, "90%", "50%").pieChart(120, 100, 60, values, labels, "#fff");
+            }
+        });
 	}]);

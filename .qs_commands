@@ -1,2 +1,2 @@
 setsid git gui
-chromium-browser --new-window file:///home/morten/Kode/Projects/docdb/temp/angular_docdb.html
+chromium-browser --new-window file:///home/morten/Kode/Projects/docdb/docdb.html

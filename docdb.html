@@ -52,6 +52,10 @@
 		margin-right: 5px;
 	}
 
+	.packageContainer {
+		border: 1px solid darkgrey;
+	}
+
 </style>
 
 <script type="text/ng-template" id="docdb-menu.html">
@@ -157,36 +161,33 @@
 					</div>
 				</div>
 				<div class="row">
-						<div ng-repeat="package in packages.packagelist | filter:query">
-							<div ng-if="$index%2==0">
-									<div class="col-md-6">
-										<div class="thumbnail">
-											<img src="http://placehold.it/400x200&text=Even" alt="...">
-											<div class="caption">
-												<h4>{{package.packageName}}</h4>
-												<h5><small>{{package.author}}</small></h5>
-												<h5>{{package.project}}</h5>
-												<p><h5><small>{{package.description}}</small></h5></p>
-												<p><a href="#/packages/{{package.id}}" class="btn btn-primary" role="button">Details</a></p>
-											</div>
-										</div>
+					<div ng-repeat="package in packages.packagelist | filter:query">
+						<div class="col-md-12">
+							<div class=" packageContainer">
+								<div class="col-md-4">
+									<div class="caption">
+										<h4>{{package.packageName}}</h4>
+										<h5><small>{{package.author}}</small></h5>
+										<h5>{{package.project}}</h5>
+										<p><h5><small>{{package.description}}</small></h5></p>
 									</div>
-							</div>
-							<div ng-if="$index%2!=0">
-									<div class="col-md-6">
-										<div class="thumbnail">
-											<img src="http://placehold.it/400x200&text=Odd" alt="...">
-											<div class="caption">
-												<h4>{{package.packageName}}</h4>
-												<h5><small>{{package.author}}</small></h5>
-												<h5>{{package.project}}</h5>
-												<p><h5><small>{{package.description}}</small></h5></p>
-												<p><a href="#/packages/{{package.id}}" class="btn btn-primary" role="button">Details</a></p>
-											</div>
-										</div>
+									<div>
+										<p><a href="#/packages/{{package.id}}" class="btn btn-primary" role="button">Details</a></p>
 									</div>
+								</div>
+								<div class="col-md-4">
+									<h4>Top 5 programs:</h4>
+									<div id="pholder_{{$index}}">
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="caption">
+										<h4>Details:</h4>
+									</div>
+								</div>
 							</div>
 						</div>
+					</div>
 				</div>
 	  		</div>
 	    </div>
@@ -216,7 +217,7 @@
 	    				<div class="text-center">{{packages.docname}}</div>
 	    				<div class="text-right"><a style="color: white; text-decoration: none;"href="#/packages/{{packageId}}#thetop" target="_self">back to top</a></div>
 	    			</div -->
-					<div ng-repeat="package in packages.packagelist | filter:query">
+					<div ng-repeat="package in packages.packagelist">
 						<div ng-if="packageId == package.id">
 							<div class="col-md-12">
 								<div class="page-header">
@@ -231,7 +232,7 @@
 			    								<h3 class="panel-title">Procedure summary:</h3>
 			  								</div>
 			  								<div class="panel-body">
-			  									<div ng-repeat="program in package.programs | filter:query">
+			  									<div ng-repeat="program in package.programs">
 			  										<div ng-if="program.programType == 'PROCEDURE'">
 												    	<code style="white-space: normal;"><span class="codeName"><a href="#/packages/{{packageId}}#{{program.programName}}" target="_self">{{program.programName}}</a></span>(
 												    	<span ng-repeat="parameter in program.programParameters">
@@ -254,7 +255,7 @@
 			    								<h3 class="panel-title">Function summary:</h3>
 			  								</div>
 			  								<div class="panel-body">
-			  									<div ng-repeat="program in package.programs | filter:query">
+			  									<div ng-repeat="program in package.programs">
 			  										<div ng-if="program.programType == 'FUNCTION'">
 												    	<code style="white-space: normal;"><span class="codeName"><a href="#/packages/{{packageId}}#{{program.programName}}" target="_self">{{program.programName}}</a></span>(
 												    	<span ng-repeat="parameter in program.programParameters">
@@ -271,7 +272,7 @@
 	  							</div>
 
 	  							<!-- All programs details -->
-	  							<div ng-repeat="program in package.programs | filter:query">
+	  							<div ng-repeat="program in package.programs">
 	  								<div class="page-header" id="{{program.programName}}" >
 	  									<h4 style="background-color: #F1F1BD; padding: 3px;"><strong>{{program.programName}}</strong><span class="pull-right"><small> <a href="#/packages/{{packageId}}#thetop" target="_self">back to top</a></small></span></h4>
 	  									<h5><small>{{program.programType}} in package {{package.packageName}}<small></h5>
@@ -319,8 +320,11 @@
 	    </div>
 </script>
 
+<script src="js/jquery-2.0.3.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular-route.js"></script>
+<script src="js/raphael-min.js"></script>
+<script src="js/pie.js"></script>
 <script src="js/angular_app.js"></script>
 <script src="js/docdb_controller.js"></script>
 <script src="js/docdb_controller_data.js"></script>
