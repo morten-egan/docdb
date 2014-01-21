@@ -10,8 +10,9 @@ docdbControllers.controller('PackageDetailCtrl', ['$scope', '$routeParams', 'doc
     $scope.query = docdbQueryFac.queryObject;
 
     $scope.qChange = function($event) {
-        docdbQueryFac.queryObject = $event.srcElement.value;
-        elem = document.querySelector('#queryinput');
+        console.log($event.originalEvent.srcElement.value);
+        docdbQueryFac.queryObject = $event.originalEvent.srcElement.value;
+        elem = $('#queryinput');
         elem.value = docdbQueryFac.queryObject;
         $scope.query = docdbQueryFac.queryObject;
     };
@@ -47,7 +48,7 @@ docdbControllers.controller('PackageListCtrl', ['$scope', 'docdbDataFac', 'docdb
         $scope.query = docdbQueryFac.queryObject;
 
         $scope.qChange = function($event) {
-            docdbQueryFac.queryObject = $event.srcElement.value;
+            docdbQueryFac.queryObject = $event.originalEvent.srcElement.value;
             elem = document.querySelector('#queryinput');
             elem.value = docdbQueryFac.queryObject;
             $scope.query = docdbQueryFac.queryObject;
@@ -61,17 +62,21 @@ docdbControllers.controller('PackageListCtrl', ['$scope', 'docdbDataFac', 'docdb
             // document.querySelector('#queryinput').focus();
         };
 
-        $scope.dopie = function() {
-            var values = [],
-            labels = [];
+        $scope.$on('$includeContentLoaded', function() {
             for (var i = 0; i < $scope.packages.packagelist.length; i++) {
+                var values = [],
+                labels = [];
                 console.log("called with " + i);
-                $("#tab_" + i + " tr").each(function () {
-                    values.push(parseInt($("td", this).text(), 10));
-                    labels.push($("th", this).text());
-                });
-                // $("table").hide();
-                Raphael("pholder_" + i, "90%", "70%").pieChart(150, 100, 60, values, labels, "#fff");
+                for (var y = 0; y < $scope.packages.packagelist[i].programs.length; y++) {
+                    values.push(20);
+                    labels.push($scope.packages.packagelist[i].programs[y].programName);
+                }
+                console.log('Y = ' + y)
+                if (y == 1) {
+                    values.push(35);
+                    labels.push('Other')
+                }
+                Raphael("pholder_" + i, "90%", "50%").pieChart(120, 100, 60, values, labels, "#fff");
             }
-        };
+        });
 	}]);

@@ -157,85 +157,23 @@
 					</div>
 				</div>
 				<div class="row">
-						<div ng-repeat="package in packages.packagelist | filter:query">
-							<div ng-if="$index%2==0">
-									<div class="col-md-6">
-										<div class="thumbnail">
-											<!-- img src="http://placehold.it/400x200&text=Even" alt="..." -->
-											<div class="hidden">
-												<table id="tab_{{$index}}">
-            										<tbody>
-            										    <tr>
-            										        <th scope="row">Ruby</th>
-            										        <td>40%</td>
-            										    </tr>
-            										    <tr>
-            										        <th scope="row">JavaScript</th>
-            										        <td>26%</td>
-            										    </tr>
-            										    <tr>
-            										        <th scope="row">Shell</th>
-            										        <td>5%</td>
-            										    </tr>
-            										    <tr>
-            										        <th scope="row">Python</th>
-            										        <td>5%</td>
-            										    </tr>
-            										    <tr>
-            										        <th scope="row">PHP</th>
-            										        <td>4%</td>
-            										    </tr>
-            										    <tr>
-            										        <th scope="row">C</th>
-            										        <td>4%</td>
-            										    </tr>
-            										    <tr>
-            										        <th scope="row">Perl</th>
-            										        <td>3%</td>
-            										    </tr>
-            										    <tr>
-            										        <th scope="row">C++</th>
-            										        <td>2%</td>
-            										    </tr>
-            										    <tr>
-            										        <th scope="row">Java</th>
-            										        <td>2%</td>
-            										    </tr>
-            										    <tr>
-            										        <th scope="row">Objective-C</th>
-            										        <td>2%</td>
-            										    </tr>
-            										</tbody>
-        										</table>
-        									</div>
-											<div id="pholder_{{$index}}">
-											</div>
-											<div class="caption">
-												<h4>{{package.packageName}}</h4>
-												<h5><small>{{package.author}}</small></h5>
-												<h5>{{package.project}}</h5>
-												<p><h5><small>{{package.description}}</small></h5></p>
-												<p><a href="#/packages/{{package.id}}" class="btn btn-primary" role="button">Details</a></p>
-											</div>
-										</div>
-									</div>
+					<div ng-repeat="package in packages.packagelist | filter:query">
+					<div class="col-md-4">
+						<div class="thumbnail">
+							<div class="caption">
+								<h4>{{package.packageName}}</h4>
+								<h5><small>{{package.author}}</small></h5>
+								<h5>{{package.project}}</h5>
+								<p><h5><small>{{package.description}}</small></h5></p>
 							</div>
-							<div ng-if="$index%2!=0">
-									<div class="col-md-6">
-										<div class="thumbnail">
-											<img src="http://placehold.it/400x200&text=Odd" alt="...">
-											<div class="caption">
-												<h4>{{package.packageName}}</h4>
-												<h5><small>{{package.author}}</small></h5>
-												<h5>{{package.project}}</h5>
-												<p><h5><small>{{package.description}}</small></h5></p>
-												<p><a href="#/packages/{{package.id}}" class="btn btn-primary" role="button">Details</a></p>
-											</div>
-										</div>
-									</div>
+							<!-- img src="http://placehold.it/400x200&text=Even" alt="..." -->
+							<div id="pholder_{{$index}}">
+							</div>
+							<div>
+								<p><a href="#/packages/{{package.id}}" class="btn btn-primary" role="button">Details</a></p>
 							</div>
 						</div>
-					<div data-ng-init="dopie()">
+					</div>
 					</div>
 				</div>
 	  		</div>
