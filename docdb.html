@@ -52,6 +52,10 @@
 		margin-right: 5px;
 	}
 
+	.packageContainer {
+		border: 1px solid darkgrey;
+	}
+
 </style>
 
 <script type="text/ng-template" id="docdb-menu.html">
@@ -158,22 +162,31 @@
 				</div>
 				<div class="row">
 					<div ng-repeat="package in packages.packagelist | filter:query">
-					<div class="col-md-4">
-						<div class="thumbnail">
-							<div class="caption">
-								<h4>{{package.packageName}}</h4>
-								<h5><small>{{package.author}}</small></h5>
-								<h5>{{package.project}}</h5>
-								<p><h5><small>{{package.description}}</small></h5></p>
-							</div>
-							<!-- img src="http://placehold.it/400x200&text=Even" alt="..." -->
-							<div id="pholder_{{$index}}">
-							</div>
-							<div>
-								<p><a href="#/packages/{{package.id}}" class="btn btn-primary" role="button">Details</a></p>
+						<div class="col-md-12">
+							<div class=" packageContainer">
+								<div class="col-md-4">
+									<div class="caption">
+										<h4>{{package.packageName}}</h4>
+										<h5><small>{{package.author}}</small></h5>
+										<h5>{{package.project}}</h5>
+										<p><h5><small>{{package.description}}</small></h5></p>
+									</div>
+									<div>
+										<p><a href="#/packages/{{package.id}}" class="btn btn-primary" role="button">Details</a></p>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<h4>Top 5 programs:</h4>
+									<div id="pholder_{{$index}}">
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="caption">
+										<h4>Details:</h4>
+									</div>
+								</div>
 							</div>
 						</div>
-					</div>
 					</div>
 				</div>
 	  		</div>
