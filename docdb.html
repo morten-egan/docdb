@@ -163,7 +163,7 @@
 				<div class="row">
 					<div ng-repeat="package in packages.packagelist | filter:query">
 						<div class="col-md-12">
-							<div class=" packageContainer">
+								<hr>
 								<div class="col-md-4">
 									<div class="caption">
 										<h4>{{package.packageName}}</h4>
@@ -176,16 +176,17 @@
 									</div>
 								</div>
 								<div class="col-md-4">
-									<h4>Top 5 programs:</h4>
+									<h4>Top programs:</h4>
 									<div id="pholder_{{$index}}">
 									</div>
 								</div>
 								<div class="col-md-4">
 									<div class="caption">
 										<h4>Details:</h4>
+										<h5><strong># of lines: </strong> {{pkgStats[package.id].lines}} <small>(public)</small></h5>
+										<h5><strong># of DML's: </strong> {{pkgStats[package.id].dmllines}}</h5>
 									</div>
 								</div>
-							</div>
 						</div>
 					</div>
 				</div>

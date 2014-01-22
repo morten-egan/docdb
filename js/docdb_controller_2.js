@@ -49,6 +49,17 @@ docdbControllers.controller('PackageListCtrl', ['$scope', '$anchorScroll', 'docd
 
         $scope.query = docdbQueryFac.queryObject;
 
+        $scope.pkgStats = [];
+        for (var i = 0; i < $scope.packages.packagelist.length; i++) {
+        	$scope.pkgStats[$scope.packages.packagelist[i].id] = {};
+        	$scope.pkgStats[$scope.packages.packagelist[i].id].lines = 0;
+        	$scope.pkgStats[$scope.packages.packagelist[i].id].dmllines = 0;
+        	for (var y = 0; y < $scope.packages.packagelist[i].programs.length; y++) {
+                $scope.pkgStats[$scope.packages.packagelist[i].id].lines += $scope.packages.packagelist[i].programs[y].programLineCounts.totalCodeLines;
+                $scope.pkgStats[$scope.packages.packagelist[i].id].dmllines += $scope.packages.packagelist[i].programs[y].programLineCounts.totalDmlLines;
+            };
+        };
+
         $scope.qChange = function($event) {
             docdbQueryFac.queryObject = $event.originalEvent.srcElement.value;
             elem = document.querySelector('#queryinput');
