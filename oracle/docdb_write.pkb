@@ -445,7 +445,7 @@ as
                 -- Create the individual program record
                 tp('programs', '
                     "id": "'|| prg_idx ||'",
-                    "programName": ' || parser.packages(pkg_idx).programs(prg_idx).program_name || '",
+                    "programName": "' || parser.packages(pkg_idx).programs(prg_idx).program_name || '",
                     "programType": "' || (case parser.packages(pkg_idx).programs(prg_idx).is_function when true then 'FUNCTION' else 'PROCEDURE' end) || '",
                     "programDescription": "' || parser.packages(pkg_idx).programs(prg_idx).description || '",
                     "programAuthor": "' || parser.packages(pkg_idx).programs(prg_idx).author || '",

@@ -235,6 +235,7 @@ as
 
 		in_start			boolean := false;
 		token_depth			number := 0;
+		trimmed_line		varchar2(4000);
 
 	begin
 
@@ -243,29 +244,24 @@ as
 			parser.info.program_boundary_end := -1;
 		else
 			for lines in get_source loop
+				trimmed_line := upper(trim(lines.text));
 				if in_start then
 					-- Search for tokens needing an end, and if found up the token_depth
 					if instr(lines.text, '--') = 0 then
-						if instr(upper(lines.text), 'IF') > 0 then
-							token_depth := token_depth + 1;
-						end if;
-	
-						if instr(upper(lines.text), 'FOR ') > 0 and instr(upper(lines.text), ' LOOP') > 0 then
-							token_depth := token_depth + 1;
-						end if;
-	
-						if instr(upper(lines.text), 'WHILE ') > 0 and instr(upper(lines.text), ' LOOP') > 0 then
-							token_depth := token_depth + 1;
-						end if;
-	
-						-- Search for end token, and if found decrement the token_depth
-						if instr(upper(lines.text), 'END IF') > 0 then
-							token_depth := token_depth - 1;
-						end if;
-	
-						if instr(upper(lines.text), 'END LOOP') > 0 then
-							token_depth := token_depth - 1;
-						end if;
+						case 
+							when substr(trimmed_line, 1, 2) = 'IF' then
+								token_depth := token_depth + 1;
+							when substr(trimmed_line, 1, 3) = 'FOR' then
+								token_depth := token_depth + 1;
+							when substr(trimmed_line, 1, 5) = 'WHILE' then
+								token_depth := token_depth + 1;
+							when instr(trimmed_line, 'END IF') > 0 then
+								token_depth := token_depth - 1;
+							when instr(trimmed_line, 'END LOOP') > 0 then
+								token_depth := token_depth - 1;
+							else
+								null;
+						end case;
 	
 						if instr(upper(lines.text), 'END;') > 0 or (instr(upper(lines.text), 'END') > 0 and instr(upper(lines.text), upper(parser.current_data.progr.program_name)) > 0)then
 							token_depth := token_depth - 1;
@@ -279,10 +275,18 @@ as
 						exit;
 					end if;
 				else
-					if (instr(upper(lines.text), 'PROCEDURE ' || upper(parser.current_data.progr.program_name)) > 0) or (instr(upper(lines.text), 'FUNCTION ' || upper(parser.current_data.progr.program_name)) > 0) then
-						parser.info.program_boundary_start := lines.line;
-						token_depth := 1;
-						in_start := true;
+					if parser.current_data.is_procedure then
+						if (instr(upper(lines.text), 'PROCEDURE ' || upper(parser.current_data.progr.program_name)) > 0) then
+							parser.info.program_boundary_start := lines.line;
+							token_depth := 1;
+							in_start := true;
+						end if;
+					elsif parser.current_data.is_function then
+						if (instr(upper(lines.text), 'FUNCTION ' || upper(parser.current_data.progr.program_name)) > 0) then
+							parser.info.program_boundary_start := lines.line;
+							token_depth := 1;
+							in_start := true;
+						end if;
 					end if;
 				end if;
 			end loop;

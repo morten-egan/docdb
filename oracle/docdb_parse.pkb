@@ -259,6 +259,7 @@ as
 		parser.current_data.progr.line_type_counts.lines_of_code := 0;
         parser.current_data.progr.line_type_counts.comment_lines := 0;
         parser.current_data.progr.line_type_counts.dml_lines := 0;
+        parser.current_data.progr.line_type_counts.transaction_lines := 0;
 
 	end parse_session_start;
 
