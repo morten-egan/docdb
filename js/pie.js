@@ -21,7 +21,7 @@ Raphael.fn.pieChart = function (cx, cy, r, values, labels, stroke) {
                 delta = 30,
                 bcolor = Raphael.hsb(start, 1, 1),
                 p = sector(cx, cy, r, angle, angle + angleplus, {fill: "90-" + bcolor + "-" + color, stroke: stroke, "stroke-width": 3}),
-                txt = paper.text(130, 200, labels[j]).attr({fill: bcolor, stroke: "none", opacity: 0, "font-size": 16, "font-weight": "bold"});
+                txt = paper.text(130, 180, labels[j]).attr({fill: bcolor, stroke: "none", opacity: 0, "font-size": 16, "font-weight": "bold"});
             p.mouseover(function () {
                 p.stop().animate({transform: "s1.1 1.1 " + cx + " " + cy}, ms, "elastic");
                 txt.stop().animate({opacity: 1}, ms, "elastic");
