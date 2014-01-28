@@ -50,14 +50,32 @@ docdbControllers.controller('PackageListCtrl', ['$scope', '$anchorScroll', 'docd
         $scope.query = docdbQueryFac.queryObject;
 
         $scope.pkgStats = [];
+        $scope.pkgTopFull = [];
         for (var i = 0; i < $scope.packages.packagelist.length; i++) {
         	$scope.pkgStats[$scope.packages.packagelist[i].id] = {};
         	$scope.pkgStats[$scope.packages.packagelist[i].id].lines = 0;
         	$scope.pkgStats[$scope.packages.packagelist[i].id].dmllines = 0;
+            $scope.pkgStats[$scope.packages.packagelist[i].id].commentlines = 0;
+            $scope.pkgStats[$scope.packages.packagelist[i].id].transactionlines = 0;
+            var pkgPrgTop = [];
         	for (var y = 0; y < $scope.packages.packagelist[i].programs.length; y++) {
                 $scope.pkgStats[$scope.packages.packagelist[i].id].lines += $scope.packages.packagelist[i].programs[y].programLineCounts.totalCodeLines;
                 $scope.pkgStats[$scope.packages.packagelist[i].id].dmllines += $scope.packages.packagelist[i].programs[y].programLineCounts.totalDmlLines;
+                $scope.pkgStats[$scope.packages.packagelist[i].id].commentlines += $scope.packages.packagelist[i].programs[y].programLineCounts.totalCommentLines;
+                $scope.pkgStats[$scope.packages.packagelist[i].id].transactionlines += $scope.packages.packagelist[i].programs[y].programLineCounts.totalTransactionLines;
+                pkgPrgTop.push({key: $scope.packages.packagelist[i].programs[y].programName, value: $scope.packages.packagelist[i].programs[y].programLineCounts.totalCodeLines});
             };
+            /* Find top programs in package*/
+            /* var sorted = pkgPrgTop.slice(0).sort(function(a, b) {
+                return a.value - b.value;
+            });
+            var keys = [];
+            for (var i = 0, len = sorted.length; i < len; ++i) {
+                keys[i] = sorted[i].key;
+            };
+            alert(keys);
+            $scope.pkgTopFull.push(keys); */
+            $scope.pkgTopFull.push("12");
         };
 
         $scope.qChange = function($event) {
@@ -79,9 +97,9 @@ docdbControllers.controller('PackageListCtrl', ['$scope', '$anchorScroll', 'docd
             for (var i = 0; i < $scope.packages.packagelist.length; i++) {
                 var values = [],
                 labels = [];
-                for (var y = 0; y < $scope.packages.packagelist[i].programs.length; y++) {
+                for (var y = 1; y < $scope.pkgTopFull[i].length; y++) {
                     values.push(20);
-                    labels.push($scope.packages.packagelist[i].programs[y].programName);
+                    labels.push("test");
                 }
                 if (y == 1) {
                     values.push(35);
