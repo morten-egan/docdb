@@ -1,3 +1,5 @@
+@@pljson/install.sql
+
 @@docdb_parse.pks
 @@docdb_tools.pks
 @@docdb_write.pks
