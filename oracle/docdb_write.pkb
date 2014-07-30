@@ -14,6 +14,9 @@ as
     par_idx             number;
     atr_idx             varchar2(4000);
 
+    -- PLJSON Structs
+    docdb_data          json;
+
     procedure actual_write (
         piece               in                  clob
     )
