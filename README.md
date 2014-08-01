@@ -16,6 +16,7 @@ Extract the zip to a seperate location on the server.
 You can install the package into any schema that meets the following requirements:
 
 * Has the "create procedure" privilege
+* Has the "create type" privilege
 * Has the "create public synonym" privilige
 * Has write privileges to a directory, that by default is called DOCDB_OUTPUT (read on for how to set it to another directory)
 
