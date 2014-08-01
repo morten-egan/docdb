@@ -52,6 +52,7 @@ docdbControllers.controller('PackageListCtrl', ['$scope', '$anchorScroll', 'docd
         $scope.pkgStats = [];
         $scope.pkgTopFull = [];
         for (var i = 0; i < $scope.packages.packagelist.length; i++) {
+            console.log('Pkg: ' + $scope.packages.packagelist[i].id + ' ' + $scope.packages.packagelist[i].packageName);
         	$scope.pkgStats[$scope.packages.packagelist[i].id] = {};
         	$scope.pkgStats[$scope.packages.packagelist[i].id].lines = 0;
         	$scope.pkgStats[$scope.packages.packagelist[i].id].dmllines = 0;
