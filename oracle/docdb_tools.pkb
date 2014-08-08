@@ -437,6 +437,7 @@ as
 		fixed_line			varchar2(4000);
 		in_comment			boolean := false;
 		in_exception		boolean := false;
+		in_loop				boolean := false;
 
 		-- Negative attributes
 		no_instrumentation	boolean := true;
@@ -475,6 +476,24 @@ as
 			elsif substr(fixed_line, 1, 2) = '--' then
 				--ignore single line comments, but remember to count
 				parser.current_data.progr.line_type_counts.comment_lines := parser.current_data.progr.line_type_counts.comment_lines + 1;
+			elsif instr(fixed_line, 'LOOP') > 0 then
+				if not in_comment then
+					if not in_loop then
+						in_loop := true;
+					end if;
+				end if;
+			elsif instr(fixed_line, 'END LOOP;') > 0 then
+				if not in_comment then
+					if in_loop then
+						in_loop := false;
+					end if;
+				end if;
+			elsif instr(fixed_line, 'EXCEPTION') > 0 then
+				in_exception := true;
+			elsif instr(fixed_line, 'END;') > 0 then
+				if in_exception then
+					in_exception := false;
+				end if;
 			else
 				-- Check line for atributes
 				if instr(fixed_line, 'INSERT ') > 0 then
@@ -495,13 +514,24 @@ as
 				if instr(fixed_line, 'COMMIT;') > 0 then
 					parser.current_data.progr.attributes('Commit') := true;
 					parser.current_data.progr.line_type_counts.transaction_lines := parser.current_data.progr.line_type_counts.dml_lines + 1;
+					if in_loop then
+						parser.current_data.progr.attributes('Commit in loop') := true;
+					end if;
 				end if;
 				if instr(fixed_line, 'ROLLBACK;') > 0 then
 					parser.current_data.progr.attributes('Rollback') := true;
 					parser.current_data.progr.line_type_counts.transaction_lines := parser.current_data.progr.line_type_counts.dml_lines + 1;
 				end if;
-				if instr(fixed_line, 'DBMS_APPLICATION_INFO.SET;') > 0 then
+				if instr(fixed_line, 'DBMS_APPLICATION_INFO.SET') > 0 then
 					no_instrumentation := false;
+				end if;
+				if in_exception then
+					if instr(fixed_line, 'NULL;') > 0 then
+						parser.current_data.progr.atributes('Null in exception') := true;
+					end if;
+					if instr(fixed_line, 'OTHERS') > 0 then
+						parser.current_data.progr.attributes('Others exception') := true;
+					end if;
 				end if;
 			end if;
 		end loop;
