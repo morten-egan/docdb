@@ -10,6 +10,7 @@ as
     prg_idx             number;
     par_idx             number;
     atr_idx             varchar2(4000);
+    dep_idx             number;
 
     -- PLJSON Structs
     docdb_data          json := json();
@@ -77,6 +78,7 @@ as
         anuglar_program_counter     number := 1;
         angular_attrib_counter      number := 1;
         angular_param_counter       number := 1;
+        angular_depen_counter       number := 1;
         p_list                      json_list := json_list();
         
         pkg_temp                    json;
@@ -87,6 +89,8 @@ as
         prg_attr_temp               json;
         prg_parm_list               json_list;
         prg_parm_temp               json;
+        prg_dep_list                json_list;
+        prg_dep_temp                json;
         full_json                   json := json();
 
         docdb_clob_write            clob := empty_clob;
@@ -163,9 +167,26 @@ as
                     angular_param_counter := angular_param_counter + 1;
                     prg_parm_list.append(prg_parm_temp.to_json_value);
                 end loop;
-
                 -- Add all parameters metadata
                 prg_temp.put('programParameters', prg_parm_list);
+
+                -- Initialize program dependents json list
+                prg_dep_list := json_list();
+                dep_idx := parser.packages(pkg_idx).programs(prg_idx).dependents.first;
+                while dep_idx is not null loop
+                    -- initialize dependent json
+                    prg_dep_temp := json();
+                    prg_dep_temp.put('id', angular_depen_counter);
+                    prg_dep_temp.put('dependentOwner', parser.packages(pkg_idx).programs(prg_idx).dependents(dep_idx).d_owner);
+                    prg_dep_temp.put('dependentName', parser.packages(pkg_idx).programs(prg_idx).dependents(dep_idx).d_name);
+                    prg_dep_temp.put('dependentType', parser.packages(pkg_idx).programs(prg_idx).dependents(dep_idx).d_type);
+
+                    dep_idx := parser.packages(pkg_idx).programs(prg_idx).dependents.next(dep_idx);
+                    angular_depen_counter := angular_depen_counter + 1;
+                    prg_dep_list.append(prg_dep_temp.to_json_value);
+                end loop;
+                -- Add all dependents metadata
+                prg_temp.put('programDependents', prg_dep_list);
 
                 -- Add the program to the program list for the package
                 prg_list.append(prg_temp.to_json_value);
