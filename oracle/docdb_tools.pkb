@@ -527,7 +527,7 @@ as
 				end if;
 				if in_exception then
 					if instr(fixed_line, 'NULL;') > 0 then
-						parser.current_data.progr.atributes('Null in exception') := true;
+						parser.current_data.progr.attributes('Null in exception') := true;
 					end if;
 					if instr(fixed_line, 'OTHERS') > 0 then
 						parser.current_data.progr.attributes('Others exception') := true;
