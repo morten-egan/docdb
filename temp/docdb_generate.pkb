@@ -217,7 +217,7 @@ as
 				--ignore single line comments
 				null;
 			else
-				-- Check line for atributes
+				-- Check line for attributes
 				if instr(fixed_line, 'INSERT ') > 0 then
 					pkg_def.programs(program_index).attrs('Insert') := true;
 				end if;

@@ -158,7 +158,7 @@ docdbControllers.factory("docdbDataFac", function(){
                     "programType": "FUNCTION",
                     "programDescription": " Create a committer hash for github content and commit calls",
                     "programAuthor": "Morten Egan",
-                    "programReturn": "A pljson stucture of github committer hash",
+                    "programReturn": "A pljson structure of github committer hash",
                     "programReturnType": "ORACLEGIT.JSON.JSONSTRUCTOBJ",
                     "programParameters": [],
                     "programAttributes": [{

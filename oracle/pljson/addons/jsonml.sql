@@ -265,7 +265,7 @@ create or replace package body json_ml as
 		<xsl:value-of select="$STRING_DELIM" /> 
 	</xsl:template> 
  
-	<!-- string-replace: replaces occurances of one string with another --> 
+	<!-- string-replace: replaces occurrences of one string with another --> 
 	<xsl:template name="string-replace"> 
 		<xsl:param name="value" /> 
 		<xsl:param name="find" /> 

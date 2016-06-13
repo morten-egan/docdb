@@ -56,7 +56,7 @@ create or replace package json_ext as
   function to_json_value(d date) return json_value;
   --notice that a date type in json is also a varchar2
   function is_date(v json_value) return boolean;
-  --convertion is needed to extract dates 
+  --conversion is needed to extract dates 
   --(json_ext.to_date will not work along with the normal to_date function - any fix will be appreciated)
   function to_date2(v json_value) return date;
   --JSON Path with date
@@ -109,7 +109,7 @@ create or replace package body json_ext as
       return false;
   end;
   
-  --convertion is needed to extract dates
+  --conversion is needed to extract dates
   function to_date2(v json_value) return date as
   begin
     if(v.is_string) then

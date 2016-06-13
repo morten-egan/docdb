@@ -495,7 +495,7 @@ as
 					in_exception := false;
 				end if;
 			else
-				-- Check line for atributes
+				-- Check line for attributes
 				if instr(fixed_line, 'INSERT ') > 0 then
 					parser.current_data.progr.attributes('Insert') := true;
 					parser.current_data.progr.line_type_counts.dml_lines := parser.current_data.progr.line_type_counts.dml_lines + 1;
