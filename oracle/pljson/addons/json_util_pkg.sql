@@ -165,7 +165,7 @@ begin
   
   <!-- Replace tab, line feed and/or carriage return by its matching escape code. Can't escape backslash
        or double quote here, because they don't replace characters (&#x0; becomes \t), but they prefix 
-       characters (\ becomes \\). Besides, backslash should be seperate anyway, because it should be 
+       characters (\ becomes \\). Besides, backslash should be separate anyway, because it should be 
        processed first. This function can't do that. -->
   <xsl:template name="encode-string">
     <xsl:param name="s"/>

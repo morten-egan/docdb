@@ -1095,7 +1095,7 @@ docdbControllers.factory("docdbDataFac", function(){
                         "id": 91,
                         "paramName": "IN_ATTRIBUTE_VALUES",
                         "paramType": "VARCHAR2",
-                        "paramDescription": "A seperated list of default values. Seperated by the pipe "|" character.",
+                        "paramDescription": "A separated list of default values. Separated by the pipe "|" character.",
                         "paramDefaultValue": ""
                     }],
                     "programAttributes": [{

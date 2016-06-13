@@ -11,7 +11,7 @@ First of download the latest release zip file. This is available from the releas
 
 [LATEST DOCDB_RELEASE.ZIP](https://github.com/morten-egan/docdb/releases)
 
-Extract the zip to a seperate location on the server.
+Extract the zip to a separate location on the server.
 
 You can install the package into any schema that meets the following requirements:
 

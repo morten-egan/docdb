@@ -257,7 +257,7 @@ CREATE OR REPLACE PACKAGE BODY "JSON_PARSER" as
     buf := next_char(indx, jsrc); 
     while(buf != endChar) loop
       --clob control
-      if(v_count > 8191) then --crazy oracle error (16383 is the highest working length with unistr - 8192 choosen to be safe)
+      if(v_count > 8191) then --crazy oracle error (16383 is the highest working length with unistr - 8192 chosen to be safe)
         if(v_extended is null) then 
           v_extended := empty_clob();
           dbms_lob.createtemporary(v_extended, true); 
