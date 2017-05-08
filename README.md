@@ -79,5 +79,3 @@ To see the documentation, take the file generated in the output directory (docdb
 * angular_app.js
 
 Place docdb_controller_data.js in the same location [unzipped location]/js, and open docdb.html in your browser.
-
-For an example output you can look view [This Demo](http://www.codemonth.dk/docdb_demo/angular_docdb.html) 
