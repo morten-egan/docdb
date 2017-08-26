@@ -15,6 +15,59 @@ as
     -- PLJSON Structs
     docdb_data          json := json();
 
+    procedure resource_write (
+        res_name                        in                varchar2
+        , res_version                   in                varchar2
+    )
+    
+    as
+
+        l_res_lob                       clob;
+        docdb_resource_file             utl_file.file_type;
+        w_length                        number;
+        w_amount                        number default 32000;
+        w_offset                        number default 1;
+    
+    begin
+    
+        dbms_application_info.set_action('resource_write');
+
+        if docdb_write_attributes('out_default') = 'DIRECTORY' then
+            dbms_lob.createtemporary(l_res_lob, true, dbms_lob.session); 
+
+            select resource_content
+            into l_res_lob
+            from docdb_resources
+            where resource_name = res_name;
+
+            w_length := nvl(dbms_lob.getlength(l_res_lob),0);
+
+            docdb_resource_file := utl_file.fopen(docdb_write_attributes('out_default_val'), res_name, 'AB', 32760);
+
+            if w_length < 32760 then
+                utl_file.put(docdb_resource_file, l_res_lob);
+            else
+                while ( w_offset < w_length ) loop
+                    utl_file.put(docdb_resource_file, dbms_lob.substr(l_res_lob, w_amount, w_offset) );
+                    utl_file.fflush(docdb_resource_file);
+                    w_offset := w_offset + w_amount;
+                end loop;
+            end if;
+
+            utl_file.fflush(docdb_resource_file);
+            utl_file.fclose(docdb_resource_file);
+
+        end if;
+    
+        dbms_application_info.set_action(null);
+    
+        exception
+            when others then
+                dbms_application_info.set_action(null);
+                raise;
+    
+    end resource_write;
+
     procedure actual_write (
         piece               in                  clob
     )
@@ -244,6 +297,18 @@ as
                 write_angular(parser);
         end case;
 
+        if docdb_write_attributes('out_default') = 'DIRECTORY' then
+            resource_write('bootstrap.min.css', docdb_write_attributes('docdb_resource_version'));
+            resource_write('raphael-min.js', docdb_write_attributes('docdb_resource_version'));
+            resource_write('jquery-2.0.3.min.js', docdb_write_attributes('docdb_resource_version'));
+            resource_write('docdb_controller.js', docdb_write_attributes('docdb_resource_version'));
+            resource_write('angular_app.js', docdb_write_attributes('docdb_resource_version'));
+            resource_write('pie.js', docdb_write_attributes('docdb_resource_version'));
+            resource_write('docdb_controller_2.js', docdb_write_attributes('docdb_resource_version'));
+            resource_write('angular.min.js', docdb_write_attributes('docdb_resource_version'));
+            resource_write('angular-route.js', docdb_write_attributes('docdb_resource_version'));
+        end if;
+
         commit;
 
     end write_doc;
@@ -264,10 +329,11 @@ as
 begin
 
     -- Set package defaults
-    docdb_write_attributes('out_default')           := 'TABLE';
-    docdb_write_attributes('out_default_val')       := 'DOCDB_OUTPUT';
-    docdb_write_attributes('out_default_format')    := 'ANGULAR';
-    docdb_write_attributes('docdb_file_name')       := 'docdb_controller_data.js';
+    docdb_write_attributes('out_default')               := 'DIRECTORY';
+    docdb_write_attributes('out_default_val')           := 'DOCDB_OUTPUT';
+    docdb_write_attributes('out_default_format')        := 'ANGULAR';
+    docdb_write_attributes('docdb_file_name')           := 'docdb_controller_data.js';
+    docdb_write_attributes('docdb_resource_version')    := '2.0.0';
 
 end docdb_write;
 /
